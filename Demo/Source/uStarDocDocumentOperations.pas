@@ -200,7 +200,6 @@ var
   LIndex: Integer;
 begin
   LOutFiles := nil;
-  LPageRanges := nil;
   btnConvert.Enabled := False;
   LPageRanges := TObjectList<TgtPageRangeSettings>.Create;
   LPageRanges.Add(TgtPageRangeSettings.Create(edConvertpagerange.Text));
@@ -289,6 +288,7 @@ var
   LEncryptionLevel: TgtPDFEncryptionLevel;
   LUserPermissions: TgtPDFDocPermissions;
 begin
+  LEncryptionLevel := pelNone;
   case rgEncryptionLevel.ItemIndex of
     0:
       LEncryptionLevel := pelNone;
@@ -428,7 +428,6 @@ var
   LSearchText: TObjectList<TgtSearchText>;
 begin
   LOutFile := nil;
-  LSearchText := nil;
   btnRedact.Enabled := False;
   LSearchText := TObjectList<TgtSearchText>.Create;
   LSearchText.Add(TgtSearchText.Create(edSearchText.Text, True, False));
@@ -525,7 +524,10 @@ var
 begin
   btnView.Enabled := False;
   DocObject := gtStarDocsSDK1.Storage.Upload(edViewLoad.Text, '');
-  gtStarDocsSDK1.Viewer.ViewerSettings.EnableFormFilling := True;
+  gtStarDocsSDK1.Viewer.ViewerSettings.InteractiveElements.
+    FormFields.EnableFormFilling := True;
+  gtStarDocsSDK1.Viewer.ViewerSettings.InteractiveElements.
+    FormFields.AllowJavaScriptExecution := True;
   gtStarDocsSDK1.Viewer.ViewerSettings.FullScreenVisible := False;
   gtStarDocsSDK1.Viewer.ViewerSettings.VisibleNavigationControls.
     GotoPage := True;

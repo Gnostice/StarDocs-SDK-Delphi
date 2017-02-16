@@ -370,10 +370,6 @@ object Form1: TForm1
     object tbshConvert: TTabSheet
       Caption = 'Convert'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 1
         Top = 3
@@ -488,10 +484,6 @@ object Form1: TForm1
     object tbshEncrypt: TTabSheet
       Caption = 'Encrypt'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox4: TGroupBox
         Left = 1
         Top = 0
@@ -668,10 +660,6 @@ object Form1: TForm1
     object tbshRedactText: TTabSheet
       Caption = 'Redact text'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox5: TGroupBox
         Left = 1
         Top = 3
@@ -769,10 +757,6 @@ object Form1: TForm1
     object tbshMerge: TTabSheet
       Caption = 'Merge'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 1
         Top = 3
@@ -842,10 +826,6 @@ object Form1: TForm1
     object tbshDocInfo: TTabSheet
       Caption = 'Document Info'
       ImageIndex = 6
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox6: TGroupBox
         Left = 1
         Top = 3
@@ -1022,6 +1002,7 @@ object Form1: TForm1
       Caption = 'BrowseForFolder1'
       DialogCaption = 'BrowseForFolder1'
       BrowseOptions = []
+      BrowseOptionsEx = []
       OnAccept = BrowseForFolder1Accept
     end
     object BrowseForFolder2: TBrowseForFolder
@@ -1029,6 +1010,7 @@ object Form1: TForm1
       Caption = 'BrowseForFolder2'
       DialogCaption = 'BrowseForFolder2'
       BrowseOptions = []
+      BrowseOptionsEx = []
       OnAccept = BrowseForFolder2Accept
     end
     object BrowseForFolder3: TBrowseForFolder
@@ -1036,6 +1018,7 @@ object Form1: TForm1
       Caption = 'BrowseForFolder3'
       DialogCaption = 'BrowseForFolder3'
       BrowseOptions = []
+      BrowseOptionsEx = []
       OnAccept = BrowseForFolder3Accept
     end
     object BrowseForFolder4: TBrowseForFolder
@@ -1043,6 +1026,7 @@ object Form1: TForm1
       Caption = 'BrowseForFolder4'
       DialogCaption = 'BrowseForFolder4'
       BrowseOptions = []
+      BrowseOptionsEx = []
       OnAccept = BrowseForFolder4Accept
     end
     object BrowseForFolder5: TBrowseForFolder
@@ -1050,6 +1034,7 @@ object Form1: TForm1
       Caption = 'BrowseForFolder5'
       DialogCaption = 'BrowseForFolder5'
       BrowseOptions = []
+      BrowseOptionsEx = []
       OnAccept = BrowseForFolder5Accept
     end
   end
