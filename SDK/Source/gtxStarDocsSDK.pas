@@ -1311,6 +1311,7 @@ type
   private
     FEnableFormFilling: Boolean;
     FHighlightColor: TgtColor;
+    FAllowJavaScriptExecution: Boolean;
     function ToJson(): String;
     function GetHighlightColor: TgtColor;
     procedure SetHighlightColor(const AValue: TgtColor);
@@ -1322,6 +1323,8 @@ type
       write FEnableFormFilling;
     property HighlightColor: TgtColor read GetHighlightColor
       write SetHighlightColor;
+    property AllowJavaScriptExecution: Boolean read FAllowJavaScriptExecution
+      write FAllowJavaScriptExecution;
   end;
 
   TgtViewerInteractiveElements = class
@@ -4109,6 +4112,7 @@ begin
   begin
     FEnableFormFilling := Source.FEnableFormFilling;
     FHighlightColor.Assign(Source.FHighlightColor);
+    FAllowJavaScriptExecution := Source.FAllowJavaScriptExecution;
   end;
 end;
 
@@ -4116,6 +4120,7 @@ constructor TgtViewerFormFields.Create;
 begin
   FEnableFormFilling := True;
   FHighlightColor := TgtColor.Create(204, 215, 255, 50);
+  FAllowJavaScriptExecution := False;
 end;
 
 destructor TgtViewerFormFields.Destroy;
@@ -4141,6 +4146,8 @@ begin
     [FEnableFormFilling];
   Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
     (False) + '"';
+  Result := Result + '"allowJavaScriptExecution":' + BooleanToString
+    [FAllowJavaScriptExecution];
   Result := Result + '}';
 end;
 
