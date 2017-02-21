@@ -233,8 +233,8 @@ function TRestRequest.createStringStreamFromStringList(
 //  key, value: string;
 //  strParam: string;
 begin
-  Result := TStringStream.Create('');
-  Result.WriteString(aBody);
+  Result := TStringStream.Create(aBody, TEncoding.UTF8);
+//  Result.WriteString(aBody);
   (*for i := 0 to strings.Count - 1 do
   begin
     key := strings.Names[i];

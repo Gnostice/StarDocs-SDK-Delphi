@@ -2360,7 +2360,7 @@ end;
 { TgtFont }
 constructor TgtFont.Create;
 begin
-  FName := 'Arial';
+  FName := 'Arial Unicode MS';
   FSize := 10;
   FColor := TgtColor.Create(0, 0, 0, 100);
   FStyles := [];
@@ -4146,7 +4146,7 @@ begin
     [FEnableFormFilling];
   Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
     (False) + '"';
-  Result := Result + '"allowJavaScriptExecution":' + BooleanToString
+  Result := Result + ',"allowJavaScriptExecution":' + BooleanToString
     [FAllowJavaScriptExecution];
   Result := Result + '}';
 end;
