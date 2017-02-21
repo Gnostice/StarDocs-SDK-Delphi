@@ -173,7 +173,7 @@ object Form1: TForm1
     Top = 43
     Width = 625
     Height = 540
-    ActivePage = tbshView
+    ActivePage = tbshConvert
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object tbshView: TTabSheet
@@ -205,7 +205,7 @@ object Form1: TForm1
             Width = 35
             Height = 21
             Caption = '...'
-            TabOrder = 0
+            TabOrder = 1
             OnClick = btnViewLoadClick
           end
           object edViewLoad: TEdit
@@ -214,7 +214,7 @@ object Form1: TForm1
             Width = 304
             Height = 21
             Enabled = False
-            TabOrder = 1
+            TabOrder = 0
           end
           object btnView: TButton
             Left = 449
@@ -315,7 +315,7 @@ object Form1: TForm1
           Width = 118
           Height = 21
           Enabled = False
-          TabOrder = 1
+          TabOrder = 3
         end
         object btnSplitload: TButton
           Left = 569
@@ -323,7 +323,7 @@ object Form1: TForm1
           Width = 35
           Height = 21
           Caption = '...'
-          TabOrder = 2
+          TabOrder = 1
           OnClick = btnSplitloadClick
         end
         object edSplitOutput: TEdit
@@ -331,7 +331,7 @@ object Form1: TForm1
           Top = 113
           Width = 465
           Height = 21
-          TabOrder = 3
+          TabOrder = 4
         end
         object btnSplitSave: TButton
           Left = 569
@@ -340,7 +340,7 @@ object Form1: TForm1
           Height = 21
           Action = BrowseForFolder1
           Caption = '...'
-          TabOrder = 4
+          TabOrder = 5
         end
         object btnSplit: TButton
           Left = 529
@@ -349,7 +349,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Split'
           Enabled = False
-          TabOrder = 5
+          TabOrder = 6
           OnClick = btnSplitClick
         end
         object ComboBox2: TComboBox
@@ -358,7 +358,7 @@ object Form1: TForm1
           Width = 465
           Height = 21
           ItemIndex = 1
-          TabOrder = 6
+          TabOrder = 2
           Text = 'SplitBySeperatorPage'
           OnChange = ComboBox2Change
           Items.Strings = (
@@ -374,7 +374,7 @@ object Form1: TForm1
         Left = 1
         Top = 3
         Width = 615
-        Height = 182
+        Height = 206
         Caption = 'Convert documents'
         TabOrder = 0
         object Label2: TLabel
@@ -386,7 +386,7 @@ object Form1: TForm1
         end
         object Label3: TLabel
           Left = 11
-          Top = 116
+          Top = 141
           Width = 51
           Height = 13
           Caption = 'Output file'
@@ -400,14 +400,14 @@ object Form1: TForm1
         end
         object Label8: TLabel
           Left = 11
-          Top = 85
+          Top = 110
           Width = 55
           Height = 13
           Caption = 'Page range'
         end
         object Label10: TLabel
           Left = 218
-          Top = 85
+          Top = 110
           Width = 55
           Height = 13
           Caption = 'Ex: 2-6,4,8'
@@ -418,17 +418,17 @@ object Form1: TForm1
           Width = 35
           Height = 21
           Caption = '...'
-          TabOrder = 0
+          TabOrder = 1
           OnClick = btnConvertloadClick
         end
         object btnConvert: TButton
           Left = 529
-          Top = 144
+          Top = 169
           Width = 75
           Height = 25
           Caption = 'Convert'
           Enabled = False
-          TabOrder = 1
+          TabOrder = 6
           OnClick = btnConvertClick
         end
         object edConvertLoad: TEdit
@@ -437,23 +437,23 @@ object Form1: TForm1
           Width = 465
           Height = 21
           Enabled = False
-          TabOrder = 2
+          TabOrder = 0
         end
         object edConvertoutput: TEdit
           Left = 95
-          Top = 113
+          Top = 138
           Width = 465
           Height = 21
-          TabOrder = 3
+          TabOrder = 4
         end
         object btnConvertsave: TButton
           Left = 569
-          Top = 113
+          Top = 138
           Width = 35
           Height = 21
           Action = BrowseForFolder2
           Caption = '...'
-          TabOrder = 4
+          TabOrder = 5
         end
         object ComboBox1: TComboBox
           Left = 95
@@ -461,8 +461,9 @@ object Form1: TForm1
           Width = 465
           Height = 21
           ItemIndex = 0
-          TabOrder = 5
+          TabOrder = 2
           Text = 'PDF'
+          OnChange = ComboBox1Change
           Items.Strings = (
             'PDF'
             'Single-Page TIFF'
@@ -474,10 +475,18 @@ object Form1: TForm1
         end
         object edConvertpagerange: TEdit
           Left = 95
-          Top = 82
+          Top = 107
           Width = 118
           Height = 21
-          TabOrder = 6
+          TabOrder = 3
+        end
+        object cbOCR: TCheckBox
+          Left = 95
+          Top = 81
+          Width = 97
+          Height = 17
+          Caption = 'OCR'
+          TabOrder = 7
         end
       end
     end
@@ -520,7 +529,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Encrypt'
           Enabled = False
-          TabOrder = 1
+          TabOrder = 5
           OnClick = btnEncryptClick
         end
         object btnEncryptLoad: TButton
@@ -529,7 +538,7 @@ object Form1: TForm1
           Width = 35
           Height = 21
           Caption = '...'
-          TabOrder = 2
+          TabOrder = 1
           OnClick = btnEncryptLoadClick
         end
         object edEncryptOutput: TEdit
@@ -553,7 +562,7 @@ object Form1: TForm1
           Top = 48
           Width = 465
           Height = 375
-          TabOrder = 5
+          TabOrder = 2
           object lblConfirmOwnerPswd: TLabel
             Left = 18
             Top = 54
@@ -595,7 +604,7 @@ object Form1: TForm1
               'AES - 128 Bit'
               'RC4 - 128 Bit'
               'RC4 - 40 Bit')
-            TabOrder = 0
+            TabOrder = 4
           end
           object gbUserPermissions: TGroupBox
             Left = 18
@@ -603,7 +612,7 @@ object Form1: TForm1
             Width = 424
             Height = 144
             Caption = 'User permissions'
-            TabOrder = 1
+            TabOrder = 5
             object chklstUserPermissions: TCheckListBox
               Left = 3
               Top = 15
@@ -628,7 +637,7 @@ object Form1: TForm1
             Width = 290
             Height = 21
             PasswordChar = '*'
-            TabOrder = 2
+            TabOrder = 0
           end
           object edtConfirmOwnerPassword: TEdit
             Left = 152
@@ -636,7 +645,7 @@ object Form1: TForm1
             Width = 290
             Height = 21
             PasswordChar = '*'
-            TabOrder = 3
+            TabOrder = 1
           end
           object edtUserPassword: TEdit
             Left = 152
@@ -644,7 +653,7 @@ object Form1: TForm1
             Width = 290
             Height = 21
             PasswordChar = '*'
-            TabOrder = 4
+            TabOrder = 2
           end
           object edtConfirmUserPassword: TEdit
             Left = 152
@@ -652,7 +661,7 @@ object Form1: TForm1
             Width = 290
             Height = 21
             PasswordChar = '*'
-            TabOrder = 5
+            TabOrder = 3
           end
         end
       end
@@ -700,7 +709,7 @@ object Form1: TForm1
           Top = 51
           Width = 465
           Height = 21
-          TabOrder = 0
+          TabOrder = 2
         end
         object btnRedact: TButton
           Left = 529
@@ -709,7 +718,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Redact'
           Enabled = False
-          TabOrder = 1
+          TabOrder = 6
           OnClick = btnRedactClick
         end
         object edRedactOutput: TEdit
@@ -717,7 +726,7 @@ object Form1: TForm1
           Top = 113
           Width = 465
           Height = 21
-          TabOrder = 2
+          TabOrder = 4
         end
         object btnRedactSave: TButton
           Left = 569
@@ -726,14 +735,14 @@ object Form1: TForm1
           Height = 21
           Action = BrowseForFolder4
           Caption = '...'
-          TabOrder = 3
+          TabOrder = 5
         end
         object edReplaceText: TEdit
           Left = 95
           Top = 82
           Width = 465
           Height = 21
-          TabOrder = 4
+          TabOrder = 3
         end
         object btnRedactLoad: TButton
           Left = 569
@@ -741,7 +750,7 @@ object Form1: TForm1
           Width = 35
           Height = 21
           Caption = '...'
-          TabOrder = 5
+          TabOrder = 1
           OnClick = btnRedactLoadClick
         end
         object edReadctLoad: TEdit
@@ -750,7 +759,7 @@ object Form1: TForm1
           Width = 465
           Height = 21
           Enabled = False
-          TabOrder = 6
+          TabOrder = 0
         end
       end
     end
@@ -784,7 +793,7 @@ object Form1: TForm1
           Width = 35
           Height = 21
           Caption = '...'
-          TabOrder = 0
+          TabOrder = 1
           OnClick = btnMergeOpen1Click
         end
         object btnMerge: TButton
@@ -794,7 +803,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Merge '
           Enabled = False
-          TabOrder = 1
+          TabOrder = 4
           OnClick = btnMergeClick
         end
         object edMergeLoad: TEdit
@@ -803,14 +812,14 @@ object Form1: TForm1
           Width = 465
           Height = 21
           Enabled = False
-          TabOrder = 2
+          TabOrder = 0
         end
         object edMergeoutput: TEdit
           Left = 95
           Top = 51
           Width = 465
           Height = 21
-          TabOrder = 3
+          TabOrder = 2
         end
         object btnMergeSave: TButton
           Left = 569
@@ -819,14 +828,14 @@ object Form1: TForm1
           Height = 21
           Action = BrowseForFolder5
           Caption = '...'
-          TabOrder = 4
+          TabOrder = 3
         end
       end
     end
     object tbshDocInfo: TTabSheet
       Caption = 'Document Info'
       ImageIndex = 6
-      object GroupBox6: TGroupBox
+      object GroupBoxDocInfo: TGroupBox
         Left = 1
         Top = 3
         Width = 615
@@ -847,7 +856,7 @@ object Form1: TForm1
           Height = 25
           Caption = 'Get info'
           Enabled = False
-          TabOrder = 0
+          TabOrder = 2
           OnClick = btnGetInfoClick
         end
         object btnDocInfoload: TButton
@@ -865,10 +874,10 @@ object Form1: TForm1
           Width = 482
           Height = 21
           Enabled = False
-          TabOrder = 2
+          TabOrder = 0
         end
       end
-      object GroupBox3: TGroupBox
+      object GroupBoxDocInfoOutput: TGroupBox
         Left = 1
         Top = 91
         Width = 615
@@ -891,7 +900,7 @@ object Form1: TForm1
         end
         object Label23: TLabel
           Left = 13
-          Top = 116
+          Top = 114
           Width = 178
           Height = 13
           Caption = 'Is unsupported MIME type or corrupt'
@@ -899,7 +908,7 @@ object Form1: TForm1
         end
         object Label24: TLabel
           Left = 98
-          Top = 209
+          Top = 174
           Width = 95
           Height = 13
           Caption = 'Is password correct'
@@ -907,14 +916,14 @@ object Form1: TForm1
         end
         object Label25: TLabel
           Left = 137
-          Top = 85
+          Top = 206
           Width = 56
           Height = 13
           Caption = 'Page Count'
         end
         object Label26: TLabel
           Left = 85
-          Top = 178
+          Top = 143
           Width = 108
           Height = 13
           Caption = 'Is password protected'
@@ -922,7 +931,7 @@ object Form1: TForm1
         end
         object Label27: TLabel
           Left = 142
-          Top = 147
+          Top = 84
           Width = 51
           Height = 13
           Caption = 'MIME type'
@@ -937,11 +946,11 @@ object Form1: TForm1
         end
         object edIsCorrupt: TEdit
           Left = 216
-          Top = 113
+          Top = 111
           Width = 388
           Height = 21
           ReadOnly = True
-          TabOrder = 1
+          TabOrder = 3
         end
         object edFileSize: TEdit
           Left = 216
@@ -949,39 +958,39 @@ object Form1: TForm1
           Width = 388
           Height = 21
           ReadOnly = True
-          TabOrder = 2
+          TabOrder = 1
         end
         object edISPasswordProtected: TEdit
           Left = 216
-          Top = 175
-          Width = 388
-          Height = 21
-          ReadOnly = True
-          TabOrder = 3
-        end
-        object edIspasswordcorrect: TEdit
-          Left = 216
-          Top = 206
+          Top = 140
           Width = 388
           Height = 21
           ReadOnly = True
           TabOrder = 4
         end
-        object edPageCount: TEdit
+        object edIspasswordcorrect: TEdit
           Left = 216
-          Top = 82
+          Top = 171
           Width = 388
           Height = 21
           ReadOnly = True
           TabOrder = 5
         end
-        object edMIMEType: TEdit
+        object edPageCount: TEdit
           Left = 216
-          Top = 144
+          Top = 203
           Width = 388
           Height = 21
           ReadOnly = True
           TabOrder = 6
+        end
+        object edMIMEType: TEdit
+          Left = 216
+          Top = 81
+          Width = 388
+          Height = 21
+          ReadOnly = True
+          TabOrder = 2
         end
       end
     end

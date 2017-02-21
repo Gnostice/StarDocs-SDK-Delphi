@@ -81,7 +81,7 @@ type
     edtUserPassword: TEdit;
     edtConfirmUserPassword: TEdit;
     tbshDocInfo: TTabSheet;
-    GroupBox6: TGroupBox;
+    GroupBoxDocInfo: TGroupBox;
     edFileName: TEdit;
     btnGetInfo: TButton;
     Label29: TLabel;
@@ -105,7 +105,7 @@ type
     BrowseForFolder5: TBrowseForFolder;
     Panel3: TPanel;
     btnView: TButton;
-    GroupBox3: TGroupBox;
+    GroupBoxDocInfoOutput: TGroupBox;
     Label19: TLabel;
     Label20: TLabel;
     Label23: TLabel;
@@ -122,6 +122,7 @@ type
     gtStarDocsSDK1: TgtStarDocsSDK;
     Label11: TLabel;
     ComboBox2: TComboBox;
+    cbOCR: TCheckBox;
 
     procedure btnMergeOpen1Click(Sender: TObject);
     procedure btnViewLoadClick(Sender: TObject);
@@ -145,6 +146,7 @@ type
     procedure btnSplitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure ComboBox1Change(Sender: TObject);
   private
 
   public
@@ -206,8 +208,14 @@ begin
   try
     case ComboBox1.ItemIndex of
       0:
-        LOutFiles := gtStarDocsSDK1.DocOperations.ConvertToPDF(LConverterInFiles,
-          nil, LPageRanges);
+        begin
+          if cbOCR.Checked then
+            gtStarDocsSDK1.DocOperations.ConverterDigitizerSettings.DigitizationMode := dmoAllImages
+          Else
+            gtStarDocsSDK1.DocOperations.ConverterDigitizerSettings.DigitizationMode := dmoOff;
+          LOutFiles := gtStarDocsSDK1.DocOperations.ConvertToPDF(LConverterInFiles,
+            nil, LPageRanges);
+        end;
       1:
         LOutFiles := gtStarDocsSDK1.DocOperations.ConvertToTIFF(LConverterInFiles,
           nil, LPageRanges);
@@ -275,7 +283,7 @@ begin
     edDocInfoLoad.Text := OpenDialog1.FileName;
     LDocInfoInFile := TgtFileObject.Create(OpenDialog1.FileName);
     LLoadedFileList.Add(LDocInfoInFile);
-    GroupBox3.Visible := False;
+    GroupBoxDocInfoOutput.Visible := False;
     btnGetInfo.Enabled := True;
   end;
 end;
@@ -362,7 +370,7 @@ begin
   try
     LGetDocumentInfoResponse := gtStarDocsSDK1.DocOperations.GetDocumentInfo
       (LDocInfoInFile, '');
-    GroupBox3.Visible := True;
+    GroupBoxDocInfoOutput.Visible := True;
     edFileName.Text := LGetDocumentInfoResponse.FileName;
     edFileSize.Text := Inttostr(LGetDocumentInfoResponse.FileSize) + ' Bytes';
 
@@ -565,6 +573,22 @@ begin
     edViewLoad.Text := OpenDialog1.FileName;
     btnView.Enabled := True;
   end;
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  if ComboBox1.ItemIndex = 0 then
+  begin
+    // Enable OCR control
+    cbOCR.Enabled := True;
+  end
+  else
+  begin
+    // Disable OCR control
+    cbOCR.Checked := False;
+    cbOCR.Enabled := False;
+  end;
+
 end;
 
 procedure TForm1.ComboBox2Change(Sender: TObject);
