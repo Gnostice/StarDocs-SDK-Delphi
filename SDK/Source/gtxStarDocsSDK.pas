@@ -35,6 +35,7 @@ type
   TgtRestAPIResponseError = class;
   TgtRestAPIResponseGetDocumentInfo = class;
   TgtRestAPIResponseGetPropertiesPDF = class;
+  {TgtRestAPIResponseCreateDataMap = class;}
   TgtPageRangeSettings = class;
   TgtPageSeparator = class;
   TgtEncoderSettings = class;
@@ -59,7 +60,7 @@ type
   // TgtDocProperties = class;
   TgtDocErrorDetails = class;
   TgtRestAPIResponseCreateView = class;
-  TgtViewResponse = class;
+  TgtCreateViewResponse = class;
   TgtVisibleNavigationControls = class;
   TgtVisibleZoomControls = class;
   TgtVisibleRotationControls = class;
@@ -69,8 +70,11 @@ type
   TgtViewerInteractiveElements = class;
   TgtViewerFormFields = class;
   TgtViewerSettings = class;
+  {TgtFieldMap = class;}
   TgtViewer = class;
   TgtPDFFormFieldFillData = class;
+  {TgtDataBinding = class;
+  TgtCreateDataMapResponse = class;}
 
   TgtStarDocsSDK = class(TComponent)
   private
@@ -81,6 +85,7 @@ type
     FStorage: TgtStorage;
     FDocOperations: TgtDocOperations;
     FViewer: TgtViewer;
+    {FDataBinding: TgtDataBinding;}
     function GetDocUri(AFile: TgtFileObject): string;
     function IssueGetRequestAndPoll(AUrl: string): string;
     function IssuePostPutRequestAndPoll(AUrl: string; APost: Boolean;
@@ -88,11 +93,10 @@ type
     function EncodeJsonDocuments(ADocUris: TStringList; APasswords: TStringList;
       APageRanges: TObjectList<TgtPageRangeSettings>): string;
     function GetAuth: TgtAuth;
-    procedure SetAuth(const AValue: TgtAuth);
     function GetStorage: TgtStorage;
-    procedure SetStorage(const AValue: TgtStorage);
     function GetDocOperations: TgtDocOperations;
     function GetViewer: TgtViewer;
+    {function GetDataBinding: TgtDataBinding;}
     function GetConnectionInfo: TgtConnectionInfo;
     procedure SetConnectionInfo(const AValue: TgtConnectionInfo);
     function GetPreferences: TgtPreferences;
@@ -100,11 +104,12 @@ type
   public
     property AuthResponse: TgtAuthResponse read FAuthResponse
       write FAuthResponse;
-    property Auth: TgtAuth read GetAuth write SetAuth;
-    property Storage: TgtStorage read GetStorage write SetStorage;
+    property Auth: TgtAuth read GetAuth;
+    property Storage: TgtStorage read GetStorage;
     property DocOperations: TgtDocOperations read GetDocOperations;
     property Viewer: TgtViewer read GetViewer;
-    constructor Create(AOwner: TComponent); overload; override;
+    {property DataBinding: TgtDataBinding read GetDataBinding;}
+    constructor Create(AOwner: TComponent = nil); overload; override;
     constructor Create(AOwner: TComponent; AConnectionInfo: TgtConnectionInfo;
       APreferences: TgtPreferences); reintroduce; overload;
     destructor Destroy; override;
@@ -196,6 +201,7 @@ type
     procedure Download(AFile: TgtFileObject; AFilePath: string; AOverWriteFiles: boolean = False); overload;
     procedure Download(AFile: TgtFileObject; FOutStream: TStream); overload;
     procedure Delete(AFile: TgtFileObject);
+    function ListFiles: TObjectList<TgtDocObject>;
   end;
 
   { TgtDocOperations }
@@ -1132,6 +1138,24 @@ type
       read GetDocuments write SetDocuments;
   end;
 
+  {TgtRestAPIResponseCreateDataMap = class
+  private
+    FUrl: String;
+  public
+    property Url: string read FUrl write FUrl;
+  end;
+
+  TgtCreateDataMapResponse = class(TPersistent)
+  private
+    FUrl: String;
+    constructor Create overload;
+    constructor Create(AApiResponse: TgtRestAPIResponseCreateDataMap) overload;
+  public
+    destructor Destroy; override;
+    property Url: string read FUrl write FUrl;
+    procedure Assign(ASource: TPersistent); override;
+  end;}
+
   TgtRestAPIDocumentError = class
   private
     FUrl: string;
@@ -1178,7 +1202,7 @@ type
   end;
 
   { TgtViewResponse }
-  TgtViewResponse = class
+  TgtCreateViewResponse = class
   private
     FUrl: String;
     FTimeToLive: Longint;
@@ -1312,6 +1336,10 @@ type
     FEnableFormFilling: Boolean;
     FHighlightColor: TgtColor;
     FAllowJavaScriptExecution: Boolean;
+    {FEnableDataBinding: Boolean;
+    FDataSourceConnectionString: String;
+    FDataSourceReadOnly: Boolean;
+    FDataFieldMap: TgtCreateDataMapResponse;}
     function ToJson(): String;
     function GetHighlightColor: TgtColor;
     procedure SetHighlightColor(const AValue: TgtColor);
@@ -1325,6 +1353,10 @@ type
       write SetHighlightColor;
     property AllowJavaScriptExecution: Boolean read FAllowJavaScriptExecution
       write FAllowJavaScriptExecution;
+    {property EnableDataBinding: Boolean read FEnableDataBinding write FEnableDataBinding;
+    property DataSourceConnectionString: String read FDataSourceConnectionString write FDataSourceConnectionString;
+    property DataSourceReadOnly: Boolean read FDataSourceReadOnly write FDataSourceReadOnly;
+    property DataFieldMap: TgtCreateDataMapResponse read FDataFieldMap;}
   end;
 
   TgtViewerInteractiveElements = class
@@ -1391,10 +1423,39 @@ type
     destructor Destroy; override;
     property ViewerSettings: TgtViewerSettings read GetViewerSettings;
     function CreateView(AFile: TgtFileObject; APassword: string = '')
-      : TgtViewResponse;
-    function GetJavaScriptViewerObject(AResponse: TgtViewResponse): string;
-    procedure DeleteView(AResponse: TgtViewResponse);
+      : TgtCreateViewResponse;
+    function GetJavaScriptViewerObject(AResponse: TgtCreateViewResponse): string;
+    procedure DeleteView(AResponse: TgtCreateViewResponse);
   end;
+
+  {
+  TgtFieldMap = class
+  private
+    FDataFieldName: string;
+    FValueMap: TDictionary<String, String>;
+    function ToJson(): String;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property DataFieldName: string read FDataFieldName write FDataFieldName;
+    property ValueMap: TDictionary<String, String> read FValueMap;
+  end;
+
+  TgtDataBinding = class
+  private
+    FStarDocs: TgtStarDocsSDK;
+    FDataSourceTableName: string;
+    FDataMap: TDictionary<string, TgtFieldMap>;
+  public
+    constructor Create(AStarDocs: TgtStarDocsSDK);
+    destructor Destroy; override;
+    property DataSourceTableName: string read FDataSourceTableName
+      write FDataSourceTableName;
+    function FieldMap(AFormFieldName: string): TgtFieldMap;
+    function CreateDataMap: TgtCreateDataMapResponse;
+    procedure DeleteDataMap(AResponse: TgtCreateDataMapResponse);
+  end;
+  }
 
   { TgtPDFFormFieldFillData }
   TgtPDFFormFieldFillData = class
@@ -1418,7 +1479,7 @@ const
 
   { TgtStarDocsSDK }
 
-constructor TgtStarDocsSDK.Create(AOwner: TComponent);
+constructor TgtStarDocsSDK.Create(AOwner: TComponent = nil);
 begin
   inherited;
   FConnectionInfo := TgtConnectionInfo.Create;
@@ -1428,6 +1489,7 @@ begin
   FStorage := TgtStorage.Create(Self);
   FDocOperations := TgtDocOperations.Create(Self);
   FViewer := TgtViewer.Create(Self);
+  {FDataBinding := TgtDataBinding.Create(Self);}
 end;
 
 constructor TgtStarDocsSDK.Create(AOwner: TComponent;
@@ -1532,6 +1594,13 @@ function TgtStarDocsSDK.GetViewer: TgtViewer;
 begin
   Result := FViewer;
 end;
+
+{
+function TgtStarDocsSDK.GetDataBinding: TgtDataBinding;
+begin
+  Result := FDataBinding;
+end;
+}
 
 function TgtStarDocsSDK.IssueGetRequestAndPoll(AUrl: string): string;
 var
@@ -1681,11 +1750,6 @@ begin
   end;
 end;
 
-procedure TgtStarDocsSDK.SetAuth(const AValue: TgtAuth);
-begin
-  FAuth := AValue;
-end;
-
 procedure TgtStarDocsSDK.SetConnectionInfo(const AValue: TgtConnectionInfo);
 begin
   FConnectionInfo.Assign(AValue);
@@ -1694,11 +1758,6 @@ end;
 procedure TgtStarDocsSDK.SetPreferences(const AValue: TgtPreferences);
 begin
   FPreferences.Assign(AValue);
-end;
-
-procedure TgtStarDocsSDK.SetStorage(const AValue: TgtStorage);
-begin
-  FStorage := AValue;
 end;
 
 { TgtConnectionInfo }
@@ -2863,11 +2922,11 @@ var
   LRestResp: THttpResponse;
   LResponseError: TgtRestAPIResponseAuthFailure;
   LResponseSuccess: TgtRestAPIResponseAuth;
-
 begin
   LRestRequest := TRestRequest.Create();
   Result := nil;
   LResponseSuccess := nil;
+  LResponseError := nil;
   try
     LRestRequest
       .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
@@ -2903,6 +2962,8 @@ begin
     LRestRequest.Free;
     if LResponseSuccess <> nil then
       LResponseSuccess.Free;
+    if LResponseError <> nil then
+      LResponseError.Free;
   end;
 end;
 
@@ -3146,6 +3207,46 @@ begin
         LRestResponse.ResponseStr);
   finally
     LRestRequest.Free;
+  end;
+end;
+
+function TgtStorage.ListFiles: TObjectList<TgtDocObject>;
+var
+  LRestRequest: TRestRequest;
+  LRestResponse: THttpResponse;
+  LJsonResponse: TgtRestAPIResponseCommon;
+  LNumFiles, LIndex: integer;
+begin
+  LJsonResponse := nil;
+  LRestRequest := TRestRequest.Create;
+  LRestRequest
+    .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+    .Path('docs')
+    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+    .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
+  try
+    LRestResponse := LRestRequest.Get;
+    if LRestResponse.ResponseCode <> 200 then
+    begin
+      // Something went wrong
+      raise EgtStarDocsException.Create(LRestResponse.ResponseCode,
+        LRestResponse.ResponseStr);
+    end;
+    LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCommon>
+      (LRestResponse.ResponseStr);
+    LNumFiles := Length(LJsonResponse.Documents);
+    Result := TObjectList<TgtDocObject>.Create;
+    for LIndex := 0 to LNumFiles - 1 do
+      Result.Add(TgtDocObject.Create(LJsonResponse.Documents[LIndex]));
+  finally
+    if Assigned(LJsonResponse) then
+    begin
+      for LIndex := 0 to LNumFiles - 1 do
+        LJsonResponse.Documents[LIndex].Free;
+      LJsonResponse.Free;
+    end;
+    if Assigned(LRestRequest) then
+      LRestRequest.Free;
   end;
 end;
 
@@ -3861,15 +3962,42 @@ begin
     [pdpAllowPrinting in APDFDocPermissions];
 end;
 
+{ TgtDataMap }
+{
+constructor TgtCreateDataMapResponse.Create;
+begin
+  FUrl := '';
+end;
+
+constructor TgtCreateDataMapResponse.Create(AApiResponse: TgtRestAPIResponseCreateDataMap);
+begin
+  FUrl := AApiResponse.Url;
+end;
+
+destructor TgtCreateDataMapResponse.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TgtCreateDataMapResponse.Assign(ASource: TPersistent);
+begin
+  if (ASource is TgtCreateDataMapResponse) then
+  begin
+    FUrl := TgtCreateDataMapResponse(ASource).FUrl;
+  end;
+end;
+}
+
 { TgtViewResponse }
 
-constructor TgtViewResponse.Create(AApiResponse: TgtRestAPIResponseCreateView);
+constructor TgtCreateViewResponse.Create(AApiResponse: TgtRestAPIResponseCreateView);
 begin
   FUrl := AApiResponse.Url;
   FTimeToLive := AApiResponse.FTimeToLive;
 end;
 
-destructor TgtViewResponse.Destroy;
+destructor TgtCreateViewResponse.Destroy;
 begin
 
   inherited;
@@ -4113,6 +4241,10 @@ begin
     FEnableFormFilling := Source.FEnableFormFilling;
     FHighlightColor.Assign(Source.FHighlightColor);
     FAllowJavaScriptExecution := Source.FAllowJavaScriptExecution;
+    {FEnableDataBinding := Source.FEnableDataBinding;
+    FDataFieldMap.Assign(Source.FDataFieldMap);
+    FDataSourceConnectionString := Source.FDataSourceConnectionString;
+    FDataSourceReadOnly := Source.FDataSourceReadOnly;}
   end;
 end;
 
@@ -4121,11 +4253,16 @@ begin
   FEnableFormFilling := True;
   FHighlightColor := TgtColor.Create(204, 215, 255, 50);
   FAllowJavaScriptExecution := False;
+  {FEnableDataBinding := False;
+  FDataFieldMap := TgtCreateDataMapResponse.Create;
+  FDataSourceConnectionString := '';
+  FDataSourceReadOnly := True;}
 end;
 
 destructor TgtViewerFormFields.Destroy;
 begin
   FHighlightColor.Free;
+  {FDataFieldMap.Free;}
   inherited;
 end;
 
@@ -4148,6 +4285,16 @@ begin
     (False) + '"';
   Result := Result + ',"allowJavaScriptExecution":' + BooleanToString
     [FAllowJavaScriptExecution];
+  {Result := Result + ',"enableDataBinding":' + BooleanToString
+    [FEnableDataBinding];
+  if FEnableDataBinding then
+  begin
+    Result := Result + ',"dataSourceConnectionString":"' +
+      FDataSourceConnectionString + '"';
+    Result := Result + ',"dataSourceReadOnly":' + BooleanToString
+      [FDataSourceReadOnly];
+    Result := Result + ',"dataFieldMapUrl":"' + FDataFieldMap.FUrl + '"';
+  end;}
   Result := Result + '}';
 end;
 
@@ -4273,6 +4420,131 @@ begin
   Result := Result + '}';
 end;
 
+{ TgtDataFieldMapping }
+{
+constructor TgtFieldMap.Create;
+begin
+  FValueMap := TDictionary<String, String>.Create;
+end;
+
+function TgtFieldMap.ToJson: String;
+var
+  LFromValue: string;
+  LToValue: string;
+  LStr: string;
+  LFirstIteration: boolean;
+begin
+  Result := '"dataMapping":{';
+  Result := Result + '"dataFieldName":' + FDataFieldName;
+  Result := Result + ',"valueMapping":[';
+  LFirstIteration := True;
+  for LFromValue in FValueMap.Keys do
+  begin
+    LToValue := FValueMap.Items[LFromValue];
+    LStr := '{';
+    LStr := LStr + '"formFieldValue": "' + LFromValue + '"';
+    LStr := LStr + ',"dataFieldValue": "' + LToValue + '"';}
+    //LStr := LStr + '}';
+    {if not LFirstIteration then Result := Result + ',';
+    Result := Result + LStr;
+    LFirstIteration := False;
+  end;}
+  //Result := Result + ']}';
+{end;
+
+destructor TgtFieldMap.Destroy;
+begin
+  FValueMap.Free;
+  inherited;
+end;
+}
+{ TgtDataBinding }
+{
+constructor TgtDataBinding.Create(AStarDocs: TgtStarDocsSDK);
+begin
+  FStarDocs := AStarDocs;
+  FDataMap := TDictionary<String, TgtFieldMap>.Create;
+end;
+
+function TgtDataBinding.FieldMap(AFormFieldName: string): TgtFieldMap;
+var
+  DataFieldMapping: TgtFieldMap;
+begin
+  if (FDataMap.TryGetValue(AFormFieldName, DataFieldMapping) = False) then
+  begin
+    // Add a new mapping
+    DataFieldMapping := TgtFieldMap.Create;
+    FDataMap.Add(AFormFieldName, DataFieldMapping);
+  end;
+  Result := DataFieldMapping;
+end;
+
+function TgtDataBinding.CreateDataMap: TgtCreateDataMapResponse;
+var
+  LUrl: string;
+  LJsonStr: string;
+  LStr: string;
+  LFormFieldName: string;
+  LFirstIteration: boolean;
+  DataFieldMapping: TgtFieldMap;
+  LJsonResponseStr: string;
+  LJsonResponse: TgtRestAPIResponseCreateDataMap;
+begin}
+//  LJsonStr := '{';
+{    LJsonStr := LJsonStr + '"dataSourceTableName":"' + FDataSourceTableName + '"';
+  LJsonStr := LJsonStr + ',"dataMap":[';
+  LFirstIteration := True;
+  for LFormFieldName in FDataMap.Keys do
+  begin
+    DataFieldMapping := FDataMap.Items[LFormFieldName];
+    LStr := '{';
+    LStr := LStr + '"formFieldName": "' + LFormFieldName + '"';
+    LStr := LStr + ',' + DataFieldMapping.ToJson;}
+//    LStr := LStr + '}';
+{    if not LFirstIteration then LJsonStr := LJsonStr + ',';
+    LJsonStr := LJsonStr + LStr;
+    LFirstIteration := False;
+  end;}
+//  LJsonStr := LJsonStr + ']}';
+{  LJsonResponse := nil;
+  try
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/datamaps';
+    LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
+      LJsonStr);
+    LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCreateDataMap>
+      (LJsonResponseStr);
+    Result := TgtCreateDataMapResponse.Create(LJsonResponse);
+  finally
+    if LJsonResponse <> nil then
+      LJsonResponse.Free;
+  end;
+end;
+
+procedure TgtDataBinding.DeleteDataMap(AResponse: TgtCreateDataMapResponse);
+var
+  LRestResp: THttpResponse;
+  LRestRequest: TRestRequest;
+begin
+  LRestRequest := TRestRequest.Create();
+  LRestRequest
+    .Domain(AResponse.Url)
+    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
+  LRestResp := LRestRequest.Delete;
+  if (LRestResp.ResponseCode <> 200) and (LRestResp.ResponseCode <> 204) then
+  begin
+    // Something went wrong
+    raise EgtStarDocsException.Create(LRestResp.ResponseCode,
+      LRestResp.ResponseStr);
+  end;
+end;
+
+destructor TgtDataBinding.Destroy;
+begin
+  FDataMap.Free;
+  inherited;
+end;
+}
+
 { TgtViewer }
 
 constructor TgtViewer.Create(AStarDocs: TgtStarDocsSDK);
@@ -4282,7 +4554,7 @@ begin
 end;
 
 function TgtViewer.CreateView(AFile: TgtFileObject; APassword: string)
-  : TgtViewResponse;
+  : TgtCreateViewResponse;
 var
   LUrl: string;
   LJsonStr: string;
@@ -4310,7 +4582,7 @@ begin
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCreateView>
       (LJsonResponseStr);
-    Result := TgtViewResponse.Create(LJsonResponse);
+    Result := TgtCreateViewResponse.Create(LJsonResponse);
 
   finally
     LDocUris.Free;
@@ -4321,7 +4593,7 @@ begin
 end;
 
 function TgtViewer.GetJavaScriptViewerObject
-  (AResponse: TgtViewResponse): string;
+  (AResponse: TgtCreateViewResponse): string;
 var
   LUrl: TIdURI;
 begin
@@ -4329,7 +4601,7 @@ begin
   Result := 'docViewer' + LUrl.Document;
 end;
 
-procedure TgtViewer.DeleteView(AResponse: TgtViewResponse);
+procedure TgtViewer.DeleteView(AResponse: TgtCreateViewResponse);
 var
   LRestResp: THttpResponse;
   LRestRequest: TRestRequest;
