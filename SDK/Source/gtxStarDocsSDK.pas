@@ -61,11 +61,12 @@ type
   TgtDocErrorDetails = class;
   TgtRestAPIResponseCreateView = class;
   TgtCreateViewResponse = class;
+  TgtInitialView = class;
   TgtVisibleNavigationControls = class;
   TgtVisibleZoomControls = class;
   TgtVisibleRotationControls = class;
   TgtVisibleColorInversionControls = class;
-  TgtSearchControls = class;
+  TgtSearch = class;
   TgtViewerNavigationPane = class;
   TgtViewerInteractiveElements = class;
   TgtViewerFormFields = class;
@@ -255,6 +256,10 @@ type
   TgtImageEnhancementMode = (iemOff, iemAuto, iemUseSpecified);
   TgtImageEnhancementTechnique = (ietGray, ietBinarization, ietScaling);
   TgtNavigationPanePosition = (nppFixed, nppFloat, nppAuto);
+  TgtPageZoomMode = (pzmFitWidth, pzmFitHeight, pzmActualSize, pzmFitPage);
+  TgtPageRotationAngle = (praZero, praClockwise90, praClockwise180,
+    praClockwise270, praCounterClockwise90, praCounterClockwise180,
+    praCounterClockwise270);
 
   TgtDocOperations = class
   private
@@ -1213,6 +1218,26 @@ type
     property TimeToLive: Longint read FTimeToLive write FTimeToLive;
   end;
 
+    { TgtInitialView }
+  TgtInitialView = class
+  private
+    FZoomMode: TgtPageZoomMode;
+    FRotation: TgtPageRotationAngle;
+    FColorInversionApplied: Boolean;
+    FNavigationPaneOpened: Boolean;
+    function ToJson(): String;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Assign(Source: TgtInitialView);
+    property ZoomMode: TgtPageZoomMode read FZoomMode write FZoomMode;
+    property Rotation: TgtPageRotationAngle read FRotation write FRotation;
+    property ColorInversionApplied: Boolean read FColorInversionApplied
+      write FColorInversionApplied;
+    property NavigationPaneOpened: Boolean read FNavigationPaneOpened
+      write FNavigationPaneOpened;
+  end;
+
   { TgtVisibleFileOperationControls }
   TgtVisibleFileOperationControls = class
   private
@@ -1291,9 +1316,10 @@ type
     property AllPages: Boolean read FAllPages write FAllPages;
   end;
 
-  TgtSearchControls = class
+  TgtSearch = class
   private
     FEnableQuickSearch: Boolean;
+    FQuickSearchVisible: Boolean;
     FHighlightColor: TgtColor;
     function ToJson(): String;
     function GetHighlightColor: TgtColor;
@@ -1301,9 +1327,11 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtSearchControls);
+    procedure Assign(Source: TgtSearch);
     property EnableQuickSearch: Boolean read FEnableQuickSearch
       write FEnableQuickSearch;
+    property QuickSearchVisible: Boolean read FQuickSearchVisible
+      write FQuickSearchVisible;
     property HighlightColor: TgtColor read GetHighlightColor
       write SetHighlightColor;
   end;
@@ -1334,23 +1362,33 @@ type
   TgtViewerFormFields = class
   private
     FEnableFormFilling: Boolean;
-    FHighlightColor: TgtColor;
+    FFormFieldHighlightColor: TgtColor;
+    FFormFieldReadonlyColor: TgtColor;
+    FFormFieldFocusColor: TgtColor;
     FAllowJavaScriptExecution: Boolean;
     {FEnableDataBinding: Boolean;
     FDataSourceConnectionString: String;
     FDataSourceReadOnly: Boolean;
     FDataFieldMap: TgtCreateDataMapResponse;}
     function ToJson(): String;
-    function GetHighlightColor: TgtColor;
-    procedure SetHighlightColor(const AValue: TgtColor);
+    function GetFormFieldHighlightColor: TgtColor;
+    function GetFormFieldReadonlyColor: TgtColor;
+    function GetFormFieldFocusColor: TgtColor;
+    procedure SetFormFieldHighlightColor(const AValue: TgtColor);
+    procedure SetFormFieldReadonlyColor(const AValue: TgtColor);
+    procedure SetFormFieldFocusColor(const AValue: TgtColor);
   public
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtViewerFormFields);
     property EnableFormFilling: Boolean read FEnableFormFilling
       write FEnableFormFilling;
-    property HighlightColor: TgtColor read GetHighlightColor
-      write SetHighlightColor;
+    property FormFieldHighlightColor: TgtColor read GetFormFieldHighlightColor
+      write SetFormFieldHighlightColor;
+    property FormFieldReadonlyColor: TgtColor read GetFormFieldReadonlyColor
+      write SetFormFieldReadonlyColor;
+    property FormFieldFocusColor: TgtColor read GetFormFieldFocusColor
+      write SetFormFieldFocusColor;
     property AllowJavaScriptExecution: Boolean read FAllowJavaScriptExecution
       write FAllowJavaScriptExecution;
     {property EnableDataBinding: Boolean read FEnableDataBinding write FEnableDataBinding;
@@ -1380,17 +1418,19 @@ type
     FVisibleZoomControls: TgtVisibleZoomControls;
     FVisibleRotationControls: TgtVisibleRotationControls;
     FVisibleColorInversionControls: TgtVisibleColorInversionControls;
-    FSearchControls: TgtSearchControls;
+    FSearch: TgtSearch;
     FNavigationPane: TgtViewerNavigationPane;
     FInteractiveElements: TgtViewerInteractiveElements;
+    FInitialView: TgtInitialView;
     function GetVisibleFileOperationControls: TgtVisibleFileOperationControls;
     function GetVisibleNavigationControls: TgtVisibleNavigationControls;
     function GetVisibleZoomControls: TgtVisibleZoomControls;
     function GetVisibleRotationControls: TgtVisibleRotationControls;
     function GetVisibleColorInversionControls: TgtVisibleColorInversionControls;
-    function GetSearchControls: TgtSearchControls;
+    function GetSearch: TgtSearch;
     function GetNavigationPane: TgtViewerNavigationPane;
     function GetInteractiveElements: TgtViewerInteractiveElements;
+    function GetInitialView: TgtInitialView;
     function ToJson(): String;
   public
     constructor Create;
@@ -1408,9 +1448,10 @@ type
       read GetVisibleRotationControls;
     property VisibleColorInversionControls: TgtVisibleColorInversionControls
       read GetVisibleColorInversionControls;
-    property SearchControls: TgtSearchControls read GetSearchControls;
+    property Search: TgtSearch read GetSearch;
     property NavigationPane: TgtViewerNavigationPane read GetNavigationPane;
     property InteractiveElements: TgtViewerInteractiveElements read GetInteractiveElements;
+    property InitialView: TgtInitialView read GetInitialView;
   end;
 
   TgtViewer = class
@@ -4003,6 +4044,46 @@ begin
   inherited;
 end;
 
+{ TgtInitialView }
+
+procedure TgtInitialView.Assign
+  (Source: TgtInitialView);
+begin
+  if (Source <> nil) then
+  begin
+    FZoomMode := Source.FZoomMode;
+    FRotation := Source.FRotation;
+    FColorInversionApplied := Source.FColorInversionApplied;
+    FNavigationPaneOpened := Source.FNavigationPaneOpened;
+  end;
+end;
+
+constructor TgtInitialView.Create;
+begin
+  FZoomMode := pzmFitWidth;
+  FRotation := praZero;
+  FColorInversionApplied := False;
+  FNavigationPaneOpened := False;
+end;
+
+destructor TgtInitialView.Destroy;
+begin
+
+  inherited;
+end;
+
+function TgtInitialView.ToJson: String;
+begin
+  Result := '"initialView":{';
+  Result := Result + '"zoomMode":"' + GetEnumName(TypeInfo(TgtPageZoomMode),
+    Integer(FZoomMode)).Substring(3) + '"';
+  Result := Result + ',"rotation":"' + GetEnumName(TypeInfo(TgtPageRotationAngle),
+    Integer(FRotation)).Substring(3) + '"';
+  Result := Result + ',"colorInversionApplied":' + BooleanToString[FColorInversionApplied];
+  Result := Result + ',"navigationPaneOpened":' + BooleanToString[FNavigationPaneOpened];
+  Result := Result + '}';
+end;
+
 { TgtVisibleFileOperationControls }
 
 procedure TgtVisibleFileOperationControls.Assign
@@ -4164,7 +4245,7 @@ end;
 
 { TgtSearchControls }
 
-procedure TgtSearchControls.Assign(Source: TgtSearchControls);
+procedure TgtSearch.Assign(Source: TgtSearch);
 begin
   if (Source <> nil) then
   begin
@@ -4173,33 +4254,35 @@ begin
   end;
 end;
 
-constructor TgtSearchControls.Create;
+constructor TgtSearch.Create;
 begin
   FEnableQuickSearch := True;
   FHighlightColor := TgtColor.Create(255, 255, 0);
 end;
 
-destructor TgtSearchControls.Destroy;
+destructor TgtSearch.Destroy;
 begin
   FHighlightColor.Free;
   inherited;
 end;
 
-function TgtSearchControls.GetHighlightColor: TgtColor;
+function TgtSearch.GetHighlightColor: TgtColor;
 begin
   Result := FHighlightColor;
 end;
 
-procedure TgtSearchControls.SetHighlightColor(const AValue: TgtColor);
+procedure TgtSearch.SetHighlightColor(const AValue: TgtColor);
 begin
   FHighlightColor.Assign(AValue);
 end;
 
-function TgtSearchControls.ToJson: String;
+function TgtSearch.ToJson: String;
 begin
-  Result := '"searchControls":{';
+  Result := '"search":{';
   Result := Result + '"enableQuickSearch":' + BooleanToString
     [FEnableQuickSearch];
+  Result := Result + '"quickSearchVisible":' + BooleanToString
+    [FQuickSearchVisible];
   Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
     (False) + '"';
   Result := Result + '}';
@@ -4239,7 +4322,9 @@ begin
   if (Source <> nil) then
   begin
     FEnableFormFilling := Source.FEnableFormFilling;
-    FHighlightColor.Assign(Source.FHighlightColor);
+    FFormFieldHighlightColor.Assign(Source.FFormFieldHighlightColor);
+    FFormFieldReadonlyColor.Assign(Source.FFormFieldReadonlyColor);
+    FFormFieldFocusColor.Assign(Source.FFormFieldFocusColor);
     FAllowJavaScriptExecution := Source.FAllowJavaScriptExecution;
     {FEnableDataBinding := Source.FEnableDataBinding;
     FDataFieldMap.Assign(Source.FDataFieldMap);
@@ -4251,7 +4336,9 @@ end;
 constructor TgtViewerFormFields.Create;
 begin
   FEnableFormFilling := True;
-  FHighlightColor := TgtColor.Create(204, 215, 255, 50);
+  FFormFieldHighlightColor := TgtColor.Create(204, 215, 255, 50);
+  FFormFieldReadonlyColor := TgtColor.Create(246, 246, 246, 100);
+  FFormFieldFocusColor := TgtColor.Create(255, 255, 255, 100);
   FAllowJavaScriptExecution := False;
   {FEnableDataBinding := False;
   FDataFieldMap := TgtCreateDataMapResponse.Create;
@@ -4261,19 +4348,39 @@ end;
 
 destructor TgtViewerFormFields.Destroy;
 begin
-  FHighlightColor.Free;
+  FFormFieldHighlightColor.Free;
   {FDataFieldMap.Free;}
   inherited;
 end;
 
-function TgtViewerFormFields.GetHighlightColor: TgtColor;
+function TgtViewerFormFields.GetFormFieldHighlightColor: TgtColor;
 begin
-  Result := FHighlightColor;
+  Result := FFormFieldHighlightColor;
 end;
 
-procedure TgtViewerFormFields.SetHighlightColor(const AValue: TgtColor);
+procedure TgtViewerFormFields.SetFormFieldHighlightColor(const AValue: TgtColor);
 begin
-  FHighlightColor.Assign(AValue);
+  FFormFieldHighlightColor.Assign(AValue);
+end;
+
+function TgtViewerFormFields.GetFormFieldReadonlyColor: TgtColor;
+begin
+  Result := FFormFieldReadonlyColor;
+end;
+
+procedure TgtViewerFormFields.SetFormFieldReadonlyColor(const AValue: TgtColor);
+begin
+  FFormFieldReadonlyColor.Assign(AValue);
+end;
+
+function TgtViewerFormFields.GetFormFieldFocusColor: TgtColor;
+begin
+  Result := FFormFieldFocusColor;
+end;
+
+procedure TgtViewerFormFields.SetFormFieldFocusColor(const AValue: TgtColor);
+begin
+  FFormFieldFocusColor.Assign(AValue);
 end;
 
 function TgtViewerFormFields.ToJson: String;
@@ -4281,7 +4388,11 @@ begin
   Result := '"formFields":{';
   Result := Result + '"enableFormFilling":' + BooleanToString
     [FEnableFormFilling];
-  Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
+  Result := Result + ',"formFieldHighlightColor":"' + FFormFieldHighlightColor.EncodeString
+    (False) + '"';
+  Result := Result + ',"formFieldReadonlyColor":"' + FFormFieldReadonlyColor.EncodeString
+    (False) + '"';
+  Result := Result + ',"formFieldFocusColor":"' + FFormFieldFocusColor.EncodeString
     (False) + '"';
   Result := Result + ',"allowJavaScriptExecution":' + BooleanToString
     [FAllowJavaScriptExecution];
@@ -4341,7 +4452,7 @@ begin
   FVisibleZoomControls := TgtVisibleZoomControls.Create;
   FVisibleRotationControls := TgtVisibleRotationControls.Create;
   FVisibleColorInversionControls := TgtVisibleColorInversionControls.Create;
-  FSearchControls := TgtSearchControls.Create;
+  FSearch := TgtSearch.Create;
   FNavigationPane := TgtViewerNavigationPane.Create;
   FInteractiveElements := TgtViewerInteractiveElements.Create;
 end;
@@ -4353,7 +4464,7 @@ begin
   FVisibleZoomControls.Free;
   FVisibleRotationControls.Free;
   FVisibleColorInversionControls.Free;
-  FSearchControls.Free;
+  FSearch.Free;
   FNavigationPane.Free;
   FInteractiveElements.Free;
   inherited;
@@ -4365,9 +4476,9 @@ begin
   Result := FVisibleFileOperationControls;
 end;
 
-function TgtViewerSettings.GetSearchControls: TgtSearchControls;
+function TgtViewerSettings.GetSearch: TgtSearch;
 begin
-  Result := FSearchControls;
+  Result := FSearch;
 end;
 
 function TgtViewerSettings.GetVisibleColorInversionControls
@@ -4403,6 +4514,11 @@ begin
   Result := FInteractiveElements;
 end;
 
+function TgtViewerSettings.GetInitialView: TgtInitialView;
+begin
+  Result := FInitialView;
+end;
+
 function TgtViewerSettings.ToJson: String;
 begin
   Result := '"viewerSettings":{';
@@ -4414,9 +4530,10 @@ begin
   Result := Result + ',' + FVisibleZoomControls.ToJson();
   Result := Result + ',' + FVisibleRotationControls.ToJson();
   Result := Result + ',' + FVisibleColorInversionControls.ToJson();
-  Result := Result + ',' + FSearchControls.ToJson();
+  Result := Result + ',' + FSearch.ToJson();
   Result := Result + ',' + FNavigationPane.ToJson();
   Result := Result + ',' + FInteractiveElements.ToJson();
+  Result := Result + ',' + FInitialView.ToJson();
   Result := Result + '}';
 end;
 
