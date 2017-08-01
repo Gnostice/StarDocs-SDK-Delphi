@@ -4281,7 +4281,7 @@ begin
   Result := '"search":{';
   Result := Result + '"enableQuickSearch":' + BooleanToString
     [FEnableQuickSearch];
-  Result := Result + '"quickSearchVisible":' + BooleanToString
+  Result := Result + ',"quickSearchVisible":' + BooleanToString
     [FQuickSearchVisible];
   Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
     (False) + '"';
@@ -4455,6 +4455,7 @@ begin
   FSearch := TgtSearch.Create;
   FNavigationPane := TgtViewerNavigationPane.Create;
   FInteractiveElements := TgtViewerInteractiveElements.Create;
+  FInitialView := TgtInitialView.Create;
 end;
 
 destructor TgtViewerSettings.Destroy;
@@ -4467,6 +4468,7 @@ begin
   FSearch.Free;
   FNavigationPane.Free;
   FInteractiveElements.Free;
+  FInitialView.Free;
   inherited;
 end;
 
