@@ -639,6 +639,7 @@ type
     FBlue: Byte;
     FAlpha: Byte;
     function EncodeString(AEncodeAlpha: Boolean = True): string;
+    function ToRGBA: string;
   public
     constructor Create(ARed: Byte; AGreen: Byte; ABlue: Byte;
       AAlpha: Byte = 100);
@@ -2344,12 +2345,25 @@ begin
   inherited;
 end;
 
+
+
 function TgtColor.EncodeString(AEncodeAlpha: Boolean): string;
 begin
   // Convert each component to hex string and concatenate them as RRGGBBAA
   Result := '#' + IntToHex(Red, 2) + IntToHex(Green, 2) + IntToHex(Blue, 2);
   if AEncodeAlpha then
     Result := Result + IntToHex(Alpha, 2);
+end;
+
+function TgtColor.ToRGBA: string;
+var
+  FAlpha: Extended;
+begin
+  // Encode as rgba(RR, GG, BB, AA)
+  Result := 'rgba(' + IntToStr(Red) + ',' + IntToStr(Green) + ',' + IntToStr(Blue);
+  FAlpha := Alpha / 100;
+  Result := Result + ',' + floattostr(FAlpha);
+  Result := Result + ')';
 end;
 
 { TgtPen }
@@ -4283,8 +4297,7 @@ begin
     [FEnableQuickSearch];
   Result := Result + ',"quickSearchVisible":' + BooleanToString
     [FQuickSearchVisible];
-  Result := Result + ',"highlightColor":"' + FHighlightColor.EncodeString
-    (False) + '"';
+  Result := Result + ',"highlightColor":"' + FHighlightColor.ToRGBA + '"';
   Result := Result + '}';
 end;
 
@@ -4349,6 +4362,8 @@ end;
 destructor TgtViewerFormFields.Destroy;
 begin
   FFormFieldHighlightColor.Free;
+  FFormFieldReadonlyColor.Free;
+  FFormFieldFocusColor.Free;
   {FDataFieldMap.Free;}
   inherited;
 end;
@@ -4388,12 +4403,9 @@ begin
   Result := '"formFields":{';
   Result := Result + '"enableFormFilling":' + BooleanToString
     [FEnableFormFilling];
-  Result := Result + ',"formFieldHighlightColor":"' + FFormFieldHighlightColor.EncodeString
-    (False) + '"';
-  Result := Result + ',"formFieldReadonlyColor":"' + FFormFieldReadonlyColor.EncodeString
-    (False) + '"';
-  Result := Result + ',"formFieldFocusColor":"' + FFormFieldFocusColor.EncodeString
-    (False) + '"';
+  Result := Result + ',"formFieldHighlightColor":"' + FFormFieldHighlightColor.ToRGBA + '"';
+  Result := Result + ',"formFieldReadonlyColor":"' + FFormFieldReadonlyColor.ToRGBA + '"';
+  Result := Result + ',"formFieldFocusColor":"' + FFormFieldFocusColor.ToRGBA + '"';
   Result := Result + ',"allowJavaScriptExecution":' + BooleanToString
     [FAllowJavaScriptExecution];
   {Result := Result + ',"enableDataBinding":' + BooleanToString
@@ -4716,8 +4728,13 @@ function TgtViewer.GetJavaScriptViewerObject
 var
   LUrl: TIdURI;
 begin
-  LUrl := TIdURI.Create(AResponse.Url);
-  Result := 'docViewer' + LUrl.Document;
+  try
+    LUrl := TIdURI.Create(AResponse.Url);
+    Result := 'docViewer' + LUrl.Document;
+  finally
+    if Assigned(LUrl) then
+      LUrl.Free;
+  end;
 end;
 
 procedure TgtViewer.DeleteView(AResponse: TgtCreateViewResponse);
@@ -4725,16 +4742,21 @@ var
   LRestResp: THttpResponse;
   LRestRequest: TRestRequest;
 begin
-  LRestRequest := TRestRequest.Create();
-  LRestRequest
-    .Domain(AResponse.Url)
-    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
-  LRestResp := LRestRequest.Delete;
-  if (LRestResp.ResponseCode <> 200) and (LRestResp.ResponseCode <> 204) then
-  begin
-    // Something went wrong
-    raise EgtStarDocsException.Create(LRestResp.ResponseCode,
-      LRestResp.ResponseStr);
+  try
+    LRestRequest := TRestRequest.Create();
+    LRestRequest
+      .Domain(AResponse.Url)
+      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
+    LRestResp := LRestRequest.Delete;
+    if (LRestResp.ResponseCode <> 200) and (LRestResp.ResponseCode <> 204) then
+    begin
+      // Something went wrong
+      raise EgtStarDocsException.Create(LRestResp.ResponseCode,
+        LRestResp.ResponseStr);
+    end;
+  finally
+    if Assigned(LRestRequest) then
+      LRestRequest.Free;
   end;
 end;
 
