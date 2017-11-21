@@ -1,6 +1,6 @@
 {
   Gnostice StarDocs v2
-  Copyright © 2002-2016 Gnostice Information Technologies Private Limited, Bangalore, India
+  Copyright © 2002-2017 Gnostice Information Technologies Private Limited, Bangalore, India
   http://www.gnostice.com
 }
 
@@ -73,7 +73,10 @@ type
   TgtViewerSettings = class;
   {TgtFieldMap = class;}
   TgtViewer = class;
+	TgtFieldNameValuePair = class;
   TgtPDFFormFieldFillData = class;
+	TgtPDFFormData = class;
+	TgtPDFFormField = class;
   {TgtDataBinding = class;
   TgtCreateDataMapResponse = class;}
 
@@ -108,7 +111,6 @@ type
     property Auth: TgtAuth read GetAuth;
     property Storage: TgtStorage read GetStorage;
     property DocOperations: TgtDocOperations read GetDocOperations;
-    property Viewer: TgtViewer read GetViewer;
     {property DataBinding: TgtDataBinding read GetDataBinding;}
     constructor Create(AOwner: TComponent = nil); overload; override;
     constructor Create(AOwner: TComponent; AConnectionInfo: TgtConnectionInfo;
@@ -119,12 +121,13 @@ type
       write SetConnectionInfo;
     property Preferences: TgtPreferences read GetPreferences
       write SetPreferences;
+    property Viewer: TgtViewer read GetViewer;
   end;
 
   TgtConnectionInfo = class(TPersistent)
   private
     FApiServerVersion: string;
-    FApiServerUri: TIdURI;
+    FApiServerUri: String;
     FApiKey: string;
     FApiSecret: string;
     FServerTimeout: Integer;
@@ -137,7 +140,7 @@ type
     procedure Assign(Source: TPersistent); override;
 
   published
-    property ApiServerUri: TIdURI read FApiServerUri write FApiServerUri;
+    property ApiServerUri: String read FApiServerUri write FApiServerUri;
     property ApiKey: string read FApiKey write FApiKey;
     property ApiSecret: string read FApiSecret write FApiSecret;
     property ApiServerVersion: string read FApiServerVersion
@@ -179,10 +182,12 @@ type
   TgtAuth = class
   private
     FStarDocs: TgtStarDocsSDK;
+    FIsAuthenticated: Boolean;
   public
     constructor Create(AStarDocs: TgtStarDocsSDK);
     destructor Destroy; override;
-    function loginApp(AEntity: string = ''): TgtAuthResponse;
+    function LoginApp(AEntity: string = ''): TgtAuthResponse;
+    property IsAuthenticated: Boolean read FIsAuthenticated write FIsAuthenticated;
   end;
 
   TgtStorage = class
@@ -193,7 +198,7 @@ type
     destructor Destroy; override;
     function Upload(AFileNameWithPath: string; APassword: string = '')
       : TgtDocObject; overload;
-    function Upload(AStream: TStream; AfileName: string; APassword: string = '')
+    function Upload(AStream: TStream; AFileName: string; APassword: string = '')
       : TgtDocObject; overload;
     function UploadFromURL(AExternalURL: string; APassword: string = '')
       : TgtDocObject;
@@ -260,6 +265,7 @@ type
   TgtPageRotationAngle = (praZero, praClockwise90, praClockwise180,
     praClockwise270, praCounterClockwise90, praCounterClockwise180,
     praCounterClockwise270);
+  TgtFormSubmitMethod = (fsmPOST, fsmGET);
 
   TgtDocOperations = class
   private
@@ -645,6 +651,7 @@ type
       AAlpha: Byte = 100);
     procedure Assign(Source: TgtColor);
     destructor Destroy; override;
+	published
     property Red: Byte read FRed write FRed;
     property Green: Byte read FGreen write FGreen;
     property Blue: Byte read FBlue write FBlue;
@@ -1231,6 +1238,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtInitialView);
+	published
     property ZoomMode: TgtPageZoomMode read FZoomMode write FZoomMode;
     property Rotation: TgtPageRotationAngle read FRotation write FRotation;
     property ColorInversionApplied: Boolean read FColorInversionApplied
@@ -1251,6 +1259,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtVisibleFileOperationControls);
+	published
     property Open: Boolean read FOpen write FOpen;
     property Save: Boolean read FSave write FSave;
     property Print: Boolean read FPrint write FPrint;
@@ -1271,6 +1280,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtVisibleNavigationControls);
+	published
     property FirstPage: Boolean read FFirstPage write FFirstPage;
     property LastPage: Boolean read FLastPage write FLastPage;
     property PrevPage: Boolean read FPrevPage write FPrevPage;
@@ -1289,6 +1299,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtVisibleZoomControls);
+	published
     property FixedSteps: Boolean read FFixedSteps write FFixedSteps;
     property ZoomIn: Boolean read FZoomIn write FZoomIn;
     property ZoomOut: Boolean read FZoomOut write FZoomOut;
@@ -1302,6 +1313,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+	published
     property Clockwise: Boolean read FClockwise write FClockwise;
     property CounterClockwise: Boolean read FCounterClockwise
       write FCounterClockwise;
@@ -1314,6 +1326,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+	published
     property AllPages: Boolean read FAllPages write FAllPages;
   end;
 
@@ -1329,6 +1342,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtSearch);
+	published
     property EnableQuickSearch: Boolean read FEnableQuickSearch
       write FEnableQuickSearch;
     property QuickSearchVisible: Boolean read FQuickSearchVisible
@@ -1348,6 +1362,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+	published
     property Visible: Boolean read FVisible
       write FVisible;
     property EnableBookmarks: Boolean read FEnableBookmarks
@@ -1382,6 +1397,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtViewerFormFields);
+	published
     property EnableFormFilling: Boolean read FEnableFormFilling
       write FEnableFormFilling;
     property FormFieldHighlightColor: TgtColor read GetFormFieldHighlightColor
@@ -1407,6 +1423,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(Source: TgtViewerInteractiveElements);
+	published
     property FormFields: TgtViewerFormFields read GetFormFields;
   end;
 
@@ -1436,6 +1453,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+	published
     property ToolbarVisible: Boolean read FToolbarVisible write FToolbarVisible;
     property FullScreenVisible: Boolean read FFullScreenVisible
       write FFullScreenVisible;
@@ -1463,11 +1481,12 @@ type
   public
     constructor Create(AStarDocs: TgtStarDocsSDK);
     destructor Destroy; override;
-    property ViewerSettings: TgtViewerSettings read GetViewerSettings;
     function CreateView(AFile: TgtFileObject; APassword: string = '')
       : TgtCreateViewResponse;
     function GetJavaScriptViewerObject(AResponse: TgtCreateViewResponse): string;
     procedure DeleteView(AResponse: TgtCreateViewResponse);
+  published
+    property ViewerSettings: TgtViewerSettings read GetViewerSettings;
   end;
 
   {
@@ -1499,18 +1518,186 @@ type
   end;
   }
 
+	{ TgtFieldNameValuePair }
+  TgtFieldNameValuePair = class
+  protected
+    FFieldName: String;
+    FFieldValue: String;
+  public
+    property FieldName: String read FFieldName;
+    property FieldValue: String read FFieldValue;
+  end;
+	
   { TgtPDFFormFieldFillData }
-  TgtPDFFormFieldFillData = class
+  TgtPDFFormFieldFillData = class(TgtFieldNameValuePair)
   private
-    FFieldName: string;
-    FFieldValue: string;
     FFlattenField: Boolean;
   public
     constructor Create(AFieldName: string; AFieldValue: string;
       AFlattenField: Boolean = False);
-    property FieldName: string read FFieldName write FFieldName;
-    property FieldValue: string read FFieldValue write FFieldValue;
     property FlattenField: Boolean read FFlattenField write FFlattenField;
+  end;
+
+	{ TgtPDFFormData }
+	TgtPDFFormData = class
+  private
+    FKeyValuePairs: TArray<TgtFieldNameValuePair>;
+  public
+    constructor Create;
+    property KeyValuePairs: TArray<TgtFieldNameValuePair> read FKeyValuePairs;
+	end;
+
+	{ TgtPDFFormField }
+	TgtPDFFormField = class abstract
+  protected
+    // Base field
+    [JSONName('Type')]
+    FType: String;
+    FName: String;
+    FFullyQualifiedName: String;
+    FMappingName: String;
+    FAlternateName: String;
+    FIsReadonly: Boolean;
+    FIsRequired: Boolean;
+    FIsHidden: Boolean;
+    FIsNoExport: Boolean;
+    FIsNoSpellCheck: Boolean;
+    FIsValidationFailed: Boolean;
+  public
+    // Base field
+    [JSONName('Type')]
+    property FieldType: String read FType;
+    property Name: String read FName;
+    property FullyQualifiedName: String read FFullyQualifiedName;
+    property MappingName: String read FMappingName;
+    property AlternateName: String read FAlternateName;
+    property IsReadonly: Boolean read FIsReadonly;
+    property IsRequired: Boolean read FIsRequired;
+    property IsHidden: Boolean read FIsHidden;
+    property IsNoExport: Boolean read FIsNoExport;
+    property IsNoSpellCheck: Boolean read FIsNoSpellCheck;
+    property IsValidationFailed: Boolean read FIsValidationFailed;
+  end;
+
+	{ TgtPDFTextFormField }
+	TgtPDFTextFormField = class(TgtPDFFormField)
+  protected
+    FIsComb: Boolean;
+    FIsMultiline: Boolean;
+    FIsPassword: Boolean;
+    FIsNoScroll: Boolean;
+    FMaxLength: Integer;
+    FDefaultValue: String;
+    FValue: String;
+  public
+    property IsComb: Boolean read FIsComb;
+    property IsMultiline: Boolean read FIsMultiline;
+    property IsPassword: Boolean read FIsPassword;
+    property IsNoScroll: Boolean read FIsNoScroll;
+    property MaxLength: Integer read FMaxLength;
+    property DefaultValue: String read FDefaultValue;
+    property Value: String read FValue;
+  end;
+
+	{ TgtPDFRadioButtonFormField }
+	TgtPDFRadioButtonFormField = class(TgtPDFFormField)
+  protected
+    FExportValue: String;
+  public
+    property ExportValue: String read FExportValue;
+  end;
+
+  { TgtPDFRadioGroupFormField }
+	TgtPDFRadioGroupFormField = class(TgtPDFFormField)
+  protected
+    FIsRadioNoToggleToOff: Boolean;
+    FIsRadioInUnison: Boolean;
+    FDefaultSelectedRadioButtonIndex: Integer;
+    FSelectedRadioButtonIndex: Integer;
+    FRadioButtons: TArray<TgtPDFFormField>;
+  public
+    property IsRadioNoToggleToOff: Boolean read FIsRadioNoToggleToOff;
+    property IsRadioInUnison: Boolean read FIsRadioInUnison;
+    property DefaultSelectedRadioButtonIndex: Integer read FDefaultSelectedRadioButtonIndex;
+    property SelectedRadioButtonIndex: Integer read FSelectedRadioButtonIndex;
+    property RadioButtons: TArray<TgtPDFFormField> read FRadioButtons;
+  end;
+
+  { TgtPDFComboBoxListBoxFormField }
+	TgtPDFComboBoxListBoxFormField = class abstract(TgtPDFFormField)
+  protected
+    FDefaultSelectedItemIndices: TArray<Integer>;
+    FSelectedItemIndices: TArray<Integer>;
+    FDisplayValues: TArray<Integer>;
+    FExportValues: TArray<Integer>;
+  public
+    property DefaultSelectedItemIndices: TArray<Integer> read FDefaultSelectedItemIndices;
+    property SelectedItemIndices: TArray<Integer> read FSelectedItemIndices;
+    property DisplayValues: TArray<Integer> read FDisplayValues;
+    property ExportValues: TArray<Integer> read FExportValues;
+  end;
+
+  { TgtPDFComboBoxFormField }
+	TgtPDFComboBoxFormField = class(TgtPDFComboBoxListBoxFormField)
+  protected
+    FIsEditable: Boolean;
+  public
+    property IsEditable: Boolean read FIsEditable;
+  end;
+
+  { TgtPDFListBoxFormField }
+	TgtPDFListBoxFormField = class(TgtPDFComboBoxListBoxFormField)
+  protected
+    FIsMultiSelect: Boolean;
+  public
+    property IsMultiSelect: Boolean read FIsMultiSelect;
+  end;
+
+  { TgtPDFCheckBoxFormField }
+	TgtPDFCheckBoxFormField = class(TgtPDFFormField)
+  protected
+    FExportValue: String;
+    FIsChecked: Boolean;
+  public
+    property ExportValue: String read FExportValue;
+    property IsChecked: Boolean read FIsChecked;
+  end;
+
+  { TgtPDFPushButtonFormField }
+	TgtPDFPushButtonFormField = class abstract(TgtPDFFormField)
+  private
+  public
+  end;
+
+  { TgtPDFSubmitPushButtonFormField }
+	TgtPDFSubmitPushButtonFormField = class(TgtPDFPushButtonFormField)
+  protected
+    FSubmitActionType: String;
+    FSubmitUrl: String;
+    FSubmitActionFieldsInclude: TArray<String>;
+    FIsSubmitActionFieldsInclude: Boolean;
+  public
+    property SubmitActionType: String read FSubmitActionType;
+    property SubmitUrl: String read FSubmitUrl;
+    property SubmitActionFieldsInclude: TArray<String> read FSubmitActionFieldsInclude;
+    property IsSubmitActionFieldsInclude: Boolean read FIsSubmitActionFieldsInclude;
+  end;
+
+  { TgtPDFResetPushButtonFormField }
+	TgtPDFResetPushButtonFormField = class(TgtPDFPushButtonFormField)
+  protected
+    FResetActionFieldsInclude: TArray<String>;
+    FIsResetActionFieldsInclude: Boolean;
+
+  public
+    property ResetActionFieldsInclude: TArray<String> read FResetActionFieldsInclude;
+    property IsResetActionFieldsInclude: Boolean read FIsResetActionFieldsInclude;
+  end;
+
+  { TgtPDFSimplePushButtonFormField }
+	TgtPDFSimplePushButtonFormField = class(TgtPDFPushButtonFormField)
+  protected
+  public
   end;
 
 implementation
@@ -1807,7 +1994,7 @@ constructor TgtConnectionInfo.Create;
 begin
   FApiServerVersion := '';
   FPollInterval := 1000;
-  FApiServerUri := TIdURI.Create;
+  //FApiServerUri := TIdURI.Create;
   FApiKey := '';
   FApiSecret := '';
   FServerTimeout := 30000;
@@ -1820,7 +2007,7 @@ begin
   begin
     FApiServerVersion := TgtConnectionInfo(Source).FApiServerVersion;
     FPollInterval := TgtConnectionInfo(Source).FPollInterval;
-    FApiServerUri.Uri := TgtConnectionInfo(Source).FApiServerUri.Uri;
+    FApiServerUri := TgtConnectionInfo(Source).FApiServerUri;
     FApiKey := TgtConnectionInfo(Source).FApiKey;
     FApiSecret := TgtConnectionInfo(Source).FApiSecret;
     FServerTimeout := TgtConnectionInfo(Source).FServerTimeout;
@@ -1832,7 +2019,7 @@ end;
 
 destructor TgtConnectionInfo.Destroy;
 begin
-  FApiServerUri.Free;
+  //FApiServerUri.Free;
   inherited;
 end;
 
@@ -2344,8 +2531,6 @@ destructor TgtColor.Destroy;
 begin
   inherited;
 end;
-
-
 
 function TgtColor.EncodeString(AEncodeAlpha: Boolean): string;
 begin
@@ -2971,7 +3156,7 @@ begin
   inherited;
 end;
 
-function TgtAuth.loginApp(AEntity: string = ''): TgtAuthResponse;
+function TgtAuth.LoginApp(AEntity: string = ''): TgtAuthResponse;
 var
   LRestRequest: TRestRequest;
   LRestResp: THttpResponse;
@@ -2982,9 +3167,10 @@ begin
   Result := nil;
   LResponseSuccess := nil;
   LResponseError := nil;
+  FIsAuthenticated := False;
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
       .Path('auth/token').WithCredentials(FStarDocs.FConnectionInfo.FApiKey,
         FStarDocs.FConnectionInfo.FApiSecret)
       .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
@@ -3013,6 +3199,7 @@ begin
       (LRestResp.ResponseStr);
     Result := TgtAuthResponse.Create(LResponseSuccess);
     FStarDocs.AuthResponse := Result;
+    FIsAuthenticated := True;
   finally
     LRestRequest.Free;
     if LResponseSuccess <> nil then
@@ -3040,7 +3227,7 @@ begin
   LResponseCommon := nil;
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
       .Path('docs')
       .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
@@ -3066,7 +3253,7 @@ begin
   end;
 end;
 
-function TgtStorage.Upload(AStream: TStream; AfileName: string;
+function TgtStorage.Upload(AStream: TStream; AFileName: string;
   APassword: string = ''): TgtDocObject;
 var
   LRestResp: THttpResponse;
@@ -3078,11 +3265,11 @@ begin
   LRestRequest := TRestRequest.Create();
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
       .Path('docs')
       .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
-    LRestRequest.FileParam('fileUpload', AfileName, AStream);
+    LRestRequest.FileParam('fileUpload', AFileName, AStream);
     LRestRequest.BodyParam('password', APassword);
     LRestRequest.BodyParam('forceFullPermission',
       BooleanToString[FStarDocs.Preferences.DocPasswordSettings.
@@ -3116,7 +3303,7 @@ begin
   LRestRequest := TRestRequest.Create();
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
       .Path('docs')
       .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
@@ -3275,7 +3462,7 @@ begin
   LJsonResponse := nil;
   LRestRequest := TRestRequest.Create;
   LRestRequest
-    .Domain(FStarDocs.FConnectionInfo.FApiServerUri.Uri)
+    .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
     .Path('docs')
     .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
     .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
@@ -3435,7 +3622,7 @@ begin
     if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     LJsonStr := LJsonStr + '}';
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/docs/ops/merge';
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/merge';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCommon>
@@ -3469,7 +3656,7 @@ begin
   if APageRanges <> nil then
     LJsonStr := LJsonStr + ',' + EncodeJsonPageRanges(APageRanges);
   LJsonStr := LJsonStr + '}]}';
-  LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/docs/ops/split-range';
+  LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/split-range';
   LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
     LJsonStr);
   LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCommon>
@@ -3503,7 +3690,7 @@ begin
   LJsonStr := LJsonStr + ',"separatorType":"' +
     FPageSeparator.EncodeString + '"';
   LJsonStr := LJsonStr + '}]}';
-  LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri +
+  LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
     '/docs/ops/split-separator';
   LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
     LJsonStr);
@@ -3680,7 +3867,7 @@ begin
       Integer(ATIFFCompressionType)).Substring(3) + '"';
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri +
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
       '/docs/ops/convert-tiff';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -3737,7 +3924,7 @@ begin
       .Substring(3) + '"';
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri +
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
       '/docs/ops/convert-mtiff';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -3828,7 +4015,7 @@ begin
       LJsonStr := LJsonStr + (',' + FConverterDigitizerSettings.ToJson);
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri +
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
       '/docs/ops/convert-pdf';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -3877,7 +4064,7 @@ begin
       LJsonStr := LJsonStr + (',' + AImageEncoderSettings.ToJson());
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/docs/ops/'
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/'
       + AUrlPath;
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -4639,7 +4826,7 @@ begin}
 //  LJsonStr := LJsonStr + ']}';
 {  LJsonResponse := nil;
   try
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/datamaps';
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/datamaps';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCreateDataMap>
@@ -4708,7 +4895,7 @@ begin
     if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     LJsonStr := LJsonStr + '}';
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri.Uri + '/viewsessions';
+    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/viewsessions';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCreateView>
@@ -4924,6 +5111,13 @@ begin
   FFieldName := AFieldName;
   FFieldValue := AFieldValue;
   FFlattenField := AFlattenField;
+end;
+
+{ TgtPDFFormData }
+
+constructor TgtPDFFormData.Create;
+begin
+  FKeyValuePairs := TArray<TgtFieldNameValuePair>.Create();
 end;
 
 destructor TgtGetDocumentInfoResponse.Destroy;
