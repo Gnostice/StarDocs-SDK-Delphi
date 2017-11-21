@@ -1,4 +1,4 @@
-package gtStarDocsSDK;
+package gtStarDocsSDK_design;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -27,23 +27,14 @@ package gtStarDocsSDK;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Gnostice StarDocs SDK'}
 {$LIBSUFFIX '250'}
-{$RUNONLY}
+{$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
-  IndySystem,
-  IndyProtocols,
-  IndyCore,
-  xmlrtl,
-  dbrtl,
-  inet,
-  soaprtl,
-  RESTComponents;
+  gtStarDocsSDK;
 
 contains
-  gtxStarDocsSDK in '..\gtxStarDocsSDK.pas',
-  RestRequest in '..\RestRequest.pas';
+  gtxStarDocsSDK_reg in '..\gtxStarDocsSDK_reg.pas';
 
 end.
-

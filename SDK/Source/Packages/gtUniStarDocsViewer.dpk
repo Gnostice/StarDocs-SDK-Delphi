@@ -1,4 +1,4 @@
-package gtStarDocsSDK;
+package gtUniStarDocsViewer;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -25,25 +25,29 @@ package gtStarDocsSDK;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Gnostice StarDocs SDK'}
+{$DESCRIPTION 'Gnostice StarDocs Document Viewer for UniGUI'}
 {$LIBSUFFIX '250'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
+  vcl,
+  vclimg,
+  soaprtl,
+  dbrtl,
   IndySystem,
   IndyProtocols,
   IndyCore,
-  xmlrtl,
-  dbrtl,
-  inet,
-  soaprtl,
-  RESTComponents;
+  vcldb,
+  RESTComponents,
+  uniGUI25,
+  uniGUI25Core,
+  uniTools25,
+  uIndy25,
+  gtStarDocsSDK;
 
 contains
-  gtxStarDocsSDK in '..\gtxStarDocsSDK.pas',
-  RestRequest in '..\RestRequest.pas';
+  gtxUniStarDocsViewer in '..\gtxUniStarDocsViewer.pas';
 
 end.
-
