@@ -5,7 +5,7 @@ StarDocs SDK for Delphi - Installation Instructions
 3. Open project "<StarDocs Root>\SDK\Source\Packages\StarDocsSDK.groupproj". 
 4. Right-click "StarDocsSDK" in the Project Manager and choose "Build All".
 5. Right-click "gtStarDocsSDK_design250.bpl" in the Project Manager and choose "Install". This will install the TgtStarDocsSDK component.
-6. Add "<StarDocs Root>\SDK\Source" folder to library path of your IDE (Optional).
+6. Add "<StarDocs Root>\SDK\Source" folder to library path of your IDE (Tools -> Options -> Environment Options -> Delphi Options -> Library).
 
 After the installation, a new "StarDocs SDK" tab will be available on the component palette of the IDE. This tab will contain StarDocsSDK component of StarDocs Delphi. 
 
