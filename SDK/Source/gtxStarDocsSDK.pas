@@ -1,6 +1,6 @@
 {
   Gnostice StarDocs v2
-  Copyright © 2002-2017 Gnostice Information Technologies Private Limited, Bangalore, India
+  Copyright © Gnostice Information Technologies Private Limited, Bangalore, India
   http://www.gnostice.com
 }
 
@@ -15,12 +15,12 @@ uses
   TypInfo,
   SysUtils,
   IdURI,
-  // Graphics,
   RestRequest,
-  REST.Json;
+  REST.Json,
+  REST.Json.Types;
 
 type
-  TgtConnectionInfo = class;
+  TgtConnectionSettings = class;
   TgtPreferences = class;
   TgtAuth = class;
   TgtStorage = class;
@@ -70,7 +70,7 @@ type
   TgtViewerNavigationPane = class;
   TgtViewerInteractiveElements = class;
   TgtViewerFormFields = class;
-  TgtViewerSettings = class;
+  TgtViewerPreferences = class;
   {TgtFieldMap = class;}
   TgtViewer = class;
 	TgtFieldNameValuePair = class;
@@ -82,7 +82,7 @@ type
 
   TgtStarDocsSDK = class(TComponent)
   private
-    FConnectionInfo: TgtConnectionInfo;
+    FConnectionSettings: TgtConnectionSettings;
     FPreferences: TgtPreferences;
     FAuthResponse: TgtAuthResponse;
     FAuth: TgtAuth;
@@ -101,8 +101,8 @@ type
     function GetDocOperations: TgtDocOperations;
     function GetViewer: TgtViewer;
     {function GetDataBinding: TgtDataBinding;}
-    function GetConnectionInfo: TgtConnectionInfo;
-    procedure SetConnectionInfo(const AValue: TgtConnectionInfo);
+    function GetConnectionSettings: TgtConnectionSettings;
+    procedure SetConnectionSettings(const AValue: TgtConnectionSettings);
     function GetPreferences: TgtPreferences;
     procedure SetPreferences(const AValue: TgtPreferences);
   public
@@ -111,22 +111,22 @@ type
     property Auth: TgtAuth read GetAuth;
     property Storage: TgtStorage read GetStorage;
     property DocOperations: TgtDocOperations read GetDocOperations;
+    property Viewer: TgtViewer read GetViewer;
     {property DataBinding: TgtDataBinding read GetDataBinding;}
     constructor Create(AOwner: TComponent = nil); overload; override;
-    constructor Create(AOwner: TComponent; AConnectionInfo: TgtConnectionInfo;
+    constructor Create(AOwner: TComponent; AConnectionInfo: TgtConnectionSettings;
       APreferences: TgtPreferences); reintroduce; overload;
     destructor Destroy; override;
   published
-    property ConnectionInfo: TgtConnectionInfo read GetConnectionInfo
-      write SetConnectionInfo;
+    property ConnectionSettings: TgtConnectionSettings read GetConnectionSettings
+      write SetConnectionSettings;
     property Preferences: TgtPreferences read GetPreferences
       write SetPreferences;
-    property Viewer: TgtViewer read GetViewer;
   end;
 
-  TgtConnectionInfo = class(TPersistent)
+  TgtConnectionSettings = class(TPersistent)
   private
-    FApiServerVersion: string;
+    {FApiServerVersion: string;}
     FApiServerUri: String;
     FApiKey: string;
     FApiSecret: string;
@@ -137,45 +137,50 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
 
   published
     property ApiServerUri: String read FApiServerUri write FApiServerUri;
     property ApiKey: string read FApiKey write FApiKey;
     property ApiSecret: string read FApiSecret write FApiSecret;
-    property ApiServerVersion: string read FApiServerVersion
-      write FApiServerVersion;
+    {property ApiServerVersion: string read FApiServerVersion
+      write FApiServerVersion;}
     property ServerTimeout: Integer read FServerTimeout write FServerTimeout;
     property DocOperationTimeout: Integer read FDocOperationTimeout
       write FDocOperationTimeout;
     property PollInterval: Integer read FPollInterval write FPollInterval;
   end;
 
-  TgtDocPasswordSettings = class(TPersistent)
+  TgtDocPasswordPreferences = class(TPersistent)
   private
     FForceFullPermission: Boolean;
   public
     constructor Create(AForceFullPermission: Boolean);
     destructor Destroy; override;
   published
-    procedure Assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
     property ForceFullPermission: Boolean read FForceFullPermission
       write FForceFullPermission;
   end;
 
   TgtPreferences = class(TPersistent)
   private
-    FDocPasswordSettings: TgtDocPasswordSettings;
+    FDocPasswordPreferences: TgtDocPasswordPreferences;
+    FSDK: TgtStarDocsSDK;
 
-    function GetDocPasswordSettings: TgtDocPasswordSettings;
-    procedure SetDocPasswordSettings(const AValue: TgtDocPasswordSettings);
+    function GetDocPasswordPreferences: TgtDocPasswordPreferences;
+    procedure SetDocPasswordPreferences(const AValue: TgtDocPasswordPreferences);
+    function GetViewerPreferences: TgtViewerPreferences;
+    procedure SetViewerPreferences(const AValue: TgtViewerPreferences);
   public
-    constructor Create;
+    constructor Create(ASDK: TgtStarDocsSDK);
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
   published
-    property DocPasswordSettings: TgtDocPasswordSettings
-      read GetDocPasswordSettings write SetDocPasswordSettings;
+    property DocPassword: TgtDocPasswordPreferences
+      read GetDocPasswordPreferences write SetDocPasswordPreferences;
+    property Viewer: TgtViewerPreferences
+      read GetViewerPreferences write SetViewerPreferences;
   end;
 
   // Service groups
@@ -638,7 +643,7 @@ type
   end;
 
   { TgtColor }
-  TgtColor = class
+  TgtColor = class (TPersistent)
   private
     FRed: Byte;
     FGreen: Byte;
@@ -649,7 +654,7 @@ type
   public
     constructor Create(ARed: Byte; AGreen: Byte; ABlue: Byte;
       AAlpha: Byte = 100);
-    procedure Assign(Source: TgtColor);
+    procedure AssignTo(Dest: TPersistent); override;
     destructor Destroy; override;
 	published
     property Red: Byte read FRed write FRed;
@@ -917,7 +922,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
     function ToJson: string;
     property ImageEnhancementMode: TgtImageEnhancementMode
       read FImageEnhancementMode write FImageEnhancementMode;
@@ -1227,7 +1232,7 @@ type
   end;
 
     { TgtInitialView }
-  TgtInitialView = class
+  TgtInitialView = class(TPersistent)
   private
     FZoomMode: TgtPageZoomMode;
     FRotation: TgtPageRotationAngle;
@@ -1237,7 +1242,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtInitialView);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property ZoomMode: TgtPageZoomMode read FZoomMode write FZoomMode;
     property Rotation: TgtPageRotationAngle read FRotation write FRotation;
@@ -1248,7 +1253,7 @@ type
   end;
 
   { TgtVisibleFileOperationControls }
-  TgtVisibleFileOperationControls = class
+  TgtVisibleFileOperationControls = class(TPersistent)
   private
     FOpen: Boolean;
     FSave: Boolean;
@@ -1258,7 +1263,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtVisibleFileOperationControls);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property Open: Boolean read FOpen write FOpen;
     property Save: Boolean read FSave write FSave;
@@ -1267,7 +1272,7 @@ type
   end;
 
   { TgtVisibleNavigationControls }
-  TgtVisibleNavigationControls = class
+  TgtVisibleNavigationControls = class(TPersistent)
   private
     FFirstPage: Boolean;
     FLastPage: Boolean;
@@ -1279,7 +1284,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtVisibleNavigationControls);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property FirstPage: Boolean read FFirstPage write FFirstPage;
     property LastPage: Boolean read FLastPage write FLastPage;
@@ -1289,7 +1294,7 @@ type
     property GotoPage: Boolean read FGotoPage write FGotoPage;
   end;
 
-  TgtVisibleZoomControls = class
+  TgtVisibleZoomControls = class(TPersistent)
   private
     FFixedSteps: Boolean;
     FZoomIn: Boolean;
@@ -1298,14 +1303,14 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtVisibleZoomControls);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property FixedSteps: Boolean read FFixedSteps write FFixedSteps;
     property ZoomIn: Boolean read FZoomIn write FZoomIn;
     property ZoomOut: Boolean read FZoomOut write FZoomOut;
   end;
 
-  TgtVisibleRotationControls = class
+  TgtVisibleRotationControls = class(TPersistent)
   private
     FClockwise: Boolean;
     FCounterClockwise: Boolean;
@@ -1313,24 +1318,26 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property Clockwise: Boolean read FClockwise write FClockwise;
     property CounterClockwise: Boolean read FCounterClockwise
       write FCounterClockwise;
   end;
 
-  TgtVisibleColorInversionControls = class
+  TgtVisibleColorInversionControls = class(TPersistent)
   private
     FAllPages: Boolean;
     function ToJson(): String;
   public
     constructor Create;
     destructor Destroy; override;
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property AllPages: Boolean read FAllPages write FAllPages;
   end;
 
-  TgtSearch = class
+  TgtSearch = class(TPersistent)
   private
     FEnableQuickSearch: Boolean;
     FQuickSearchVisible: Boolean;
@@ -1341,7 +1348,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtSearch);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property EnableQuickSearch: Boolean read FEnableQuickSearch
       write FEnableQuickSearch;
@@ -1351,7 +1358,7 @@ type
       write SetHighlightColor;
   end;
 
-  TgtViewerNavigationPane = class
+  TgtViewerNavigationPane = class(TPersistent)
   private
     FVisible: Boolean;
     FEnableBookmarks: Boolean;
@@ -1362,6 +1369,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property Visible: Boolean read FVisible
       write FVisible;
@@ -1375,7 +1383,7 @@ type
       write FWidth;
   end;
 
-  TgtViewerFormFields = class
+  TgtViewerFormFields = class(TPersistent)
   private
     FEnableFormFilling: Boolean;
     FFormFieldHighlightColor: TgtColor;
@@ -1396,7 +1404,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtViewerFormFields);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
     property EnableFormFilling: Boolean read FEnableFormFilling
       write FEnableFormFilling;
@@ -1414,20 +1422,22 @@ type
     property DataFieldMap: TgtCreateDataMapResponse read FDataFieldMap;}
   end;
 
-  TgtViewerInteractiveElements = class
+  TgtViewerInteractiveElements = class(TPersistent)
   private
     FFormFields: TgtViewerFormFields;
     function ToJson(): String;
     function GetFormFields: TgtViewerFormFields;
+    procedure SetFormFields (AValue: TgtViewerFormFields);
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TgtViewerInteractiveElements);
+    procedure AssignTo(Dest: TPersistent); override;
 	published
-    property FormFields: TgtViewerFormFields read GetFormFields;
+    property FormFields: TgtViewerFormFields
+      read GetFormFields write SetFormFields;
   end;
 
-  TgtViewerSettings = class
+  TgtViewerPreferences = class (TPersistent)
   private
     FToolbarVisible: Boolean;
     FFullScreenVisible: Boolean;
@@ -1441,43 +1451,58 @@ type
     FInteractiveElements: TgtViewerInteractiveElements;
     FInitialView: TgtInitialView;
     function GetVisibleFileOperationControls: TgtVisibleFileOperationControls;
+    procedure SetVisibleFileOperationControls(AValue: TgtVisibleFileOperationControls);
     function GetVisibleNavigationControls: TgtVisibleNavigationControls;
+    procedure SetVisibleNavigationControls(AValue: TgtVisibleNavigationControls);
     function GetVisibleZoomControls: TgtVisibleZoomControls;
+    procedure SetVisibleZoomControls(AValue: TgtVisibleZoomControls);
     function GetVisibleRotationControls: TgtVisibleRotationControls;
+    procedure SetVisibleRotationControls(AValue: TgtVisibleRotationControls);
     function GetVisibleColorInversionControls: TgtVisibleColorInversionControls;
+    procedure SetVisibleColorInversionControls(AValue: TgtVisibleColorInversionControls);
     function GetSearch: TgtSearch;
+    procedure SetSearch(AValue: TgtSearch);
     function GetNavigationPane: TgtViewerNavigationPane;
+    procedure SetNavigationPane(AValue: TgtViewerNavigationPane);
     function GetInteractiveElements: TgtViewerInteractiveElements;
+    procedure SetInteractiveElements(AValue: TgtViewerInteractiveElements);
     function GetInitialView: TgtInitialView;
+    procedure SetInitialView(AValue: TgtInitialView);
     function ToJson(): String;
   public
     constructor Create;
     destructor Destroy; override;
+    procedure AssignTo(Dest: TPersistent); override;
 	published
-    property ToolbarVisible: Boolean read FToolbarVisible write FToolbarVisible;
-    property FullScreenVisible: Boolean read FFullScreenVisible
-      write FFullScreenVisible;
+    property ToolbarVisible: Boolean
+      read FToolbarVisible write FToolbarVisible;
+    property FullScreenVisible: Boolean
+      read FFullScreenVisible write FFullScreenVisible;
     property VisibleFileOperationControls: TgtVisibleFileOperationControls
-      read GetVisibleFileOperationControls;
+      read GetVisibleFileOperationControls write SetVisibleFileOperationControls;
     property VisibleNavigationControls: TgtVisibleNavigationControls
-      read GetVisibleNavigationControls;
+      read GetVisibleNavigationControls write SetVisibleNavigationControls;
     property VisibleZoomControls: TgtVisibleZoomControls
-      read GetVisibleZoomControls;
+      read GetVisibleZoomControls write SetVisibleZoomControls;
     property VisibleRotationControls: TgtVisibleRotationControls
-      read GetVisibleRotationControls;
+      read GetVisibleRotationControls write SetVisibleRotationControls;
     property VisibleColorInversionControls: TgtVisibleColorInversionControls
-      read GetVisibleColorInversionControls;
-    property Search: TgtSearch read GetSearch;
-    property NavigationPane: TgtViewerNavigationPane read GetNavigationPane;
-    property InteractiveElements: TgtViewerInteractiveElements read GetInteractiveElements;
-    property InitialView: TgtInitialView read GetInitialView;
+      read GetVisibleColorInversionControls write SetVisibleColorInversionControls;
+    property Search: TgtSearch
+      read GetSearch write SetSearch;
+    property NavigationPane: TgtViewerNavigationPane
+      read GetNavigationPane write SetNavigationPane;
+    property InteractiveElements: TgtViewerInteractiveElements
+      read GetInteractiveElements write SetInteractiveElements;
+    property InitialView: TgtInitialView
+      read GetInitialView write SetInitialView;
   end;
 
   TgtViewer = class
   private
     FStarDocs: TgtStarDocsSDK;
-    FViewerSettings: TgtViewerSettings;
-    function GetViewerSettings: TgtViewerSettings;
+    FViewerSettings: TgtViewerPreferences;
+    function GetViewerPreferences: TgtViewerPreferences;
   public
     constructor Create(AStarDocs: TgtStarDocsSDK);
     destructor Destroy; override;
@@ -1485,8 +1510,7 @@ type
       : TgtCreateViewResponse;
     function GetJavaScriptViewerObject(AResponse: TgtCreateViewResponse): string;
     procedure DeleteView(AResponse: TgtCreateViewResponse);
-  published
-    property ViewerSettings: TgtViewerSettings read GetViewerSettings;
+    property Preferences: TgtViewerPreferences read GetViewerPreferences;
   end;
 
   {
@@ -1551,7 +1575,7 @@ type
 	TgtPDFFormField = class abstract
   protected
     // Base field
-    [JSONName('Type')]
+    [JSONName('type')]
     FType: String;
     FName: String;
     FFullyQualifiedName: String;
@@ -1711,8 +1735,8 @@ const
 constructor TgtStarDocsSDK.Create(AOwner: TComponent = nil);
 begin
   inherited;
-  FConnectionInfo := TgtConnectionInfo.Create;
-  FPreferences := TgtPreferences.Create;
+  FConnectionSettings := TgtConnectionSettings.Create;
+  FPreferences := TgtPreferences.Create(Self);
   { Instantiate service groups }
   FAuth := TgtAuth.Create(Self);
   FStorage := TgtStorage.Create(Self);
@@ -1722,16 +1746,16 @@ begin
 end;
 
 constructor TgtStarDocsSDK.Create(AOwner: TComponent;
-  AConnectionInfo: TgtConnectionInfo; APreferences: TgtPreferences);
+  AConnectionInfo: TgtConnectionSettings; APreferences: TgtPreferences);
 begin
   Create(AOwner);
-  FConnectionInfo.Assign(AConnectionInfo);
+  FConnectionSettings.Assign(AConnectionInfo);
   FPreferences.Assign(APreferences);
 end;
 
 destructor TgtStarDocsSDK.Destroy;
 begin
-  FConnectionInfo.Free;
+  FConnectionSettings.Free;
   FPreferences.Free;
   FAuth.Free;
   FStorage.Free;
@@ -1772,9 +1796,9 @@ begin
   Result := FAuth;
 end;
 
-function TgtStarDocsSDK.GetConnectionInfo: TgtConnectionInfo;
+function TgtStarDocsSDK.GetConnectionSettings: TgtConnectionSettings;
 begin
-  Result := FConnectionInfo;
+  Result := FConnectionSettings;
 end;
 
 function TgtStarDocsSDK.GetDocOperations: TgtDocOperations;
@@ -1845,7 +1869,7 @@ begin
   LStopWatch := TStopWatch.Create;
   try
     LRestRequestGet.Domain(AUrl)
-      .WithReadTimeout(FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FConnectionSettings.FServerTimeout)
       .WithBearerToken(FAuthResponse.AccessToken);
     LRestResp := LRestRequestGet.Get;
     if (LRestResp.ResponseCode = 201) OR (LRestResp.ResponseCode = 200) then
@@ -1862,9 +1886,9 @@ begin
     // Get the job URL and start polling for completion
     LFullJobUri := LRestResp.LocationHeader;
     LRestRequestGetPoll.Domain(LFullJobUri)
-      .WithReadTimeout(FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FConnectionSettings.FServerTimeout)
       .WithBearerToken(FAuthResponse.AccessToken);
-    LSleepTime := ConnectionInfo.PollInterval;
+    LSleepTime := ConnectionSettings.PollInterval;
     LStopWatch.Start;
     while True do
     begin
@@ -1884,10 +1908,10 @@ begin
       end;
 
       // Check if operation is taking too long
-      if ConnectionInfo.DocOperationTimeout > 0 then
+      if ConnectionSettings.DocOperationTimeout > 0 then
       begin
         LStopWatch.Stop;
-        if LStopWatch.ElapsedMilliseconds > ConnectionInfo.DocOperationTimeout
+        if LStopWatch.ElapsedMilliseconds > ConnectionSettings.DocOperationTimeout
         then
           raise EgtStarDocsException.Create(0,
             TgtExceptionStatusCode.escOperationTimedOut,
@@ -1918,7 +1942,7 @@ begin
   LStopWatch := TStopWatch.Create;
   try
     LRestRequestPost.Domain(AUrl)
-      .WithReadTimeout(FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FConnectionSettings.FServerTimeout)
       .WithBearerToken(FAuthResponse.AccessToken);
     if APost then
       LRestResp := LRestRequestPost.Post(AJsonStr)
@@ -1940,9 +1964,9 @@ begin
     // LFullJobUri := LJobsResponse.Jobs[0].Uri;
     LFullJobUri := LRestResp.LocationHeader;
     LRestRequestGet.Domain(LFullJobUri)
-      .WithReadTimeout(FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FConnectionSettings.FServerTimeout)
       .WithBearerToken(FAuthResponse.AccessToken);
-    LSleepTime := ConnectionInfo.PollInterval;
+    LSleepTime := ConnectionSettings.PollInterval;
     LStopWatch.Start;
     while True do
     begin
@@ -1962,10 +1986,10 @@ begin
       end;
 
       // Check if operation is taking too long
-      if ConnectionInfo.DocOperationTimeout > 0 then
+      if ConnectionSettings.DocOperationTimeout > 0 then
       begin
         LStopWatch.Stop;
-        if LStopWatch.ElapsedMilliseconds > ConnectionInfo.DocOperationTimeout
+        if LStopWatch.ElapsedMilliseconds > ConnectionSettings.DocOperationTimeout
         then
           raise EgtStarDocsException.Create(0,
             TgtExceptionStatusCode.escOperationTimedOut,
@@ -1979,9 +2003,9 @@ begin
   end;
 end;
 
-procedure TgtStarDocsSDK.SetConnectionInfo(const AValue: TgtConnectionInfo);
+procedure TgtStarDocsSDK.SetConnectionSettings(const AValue: TgtConnectionSettings);
 begin
-  FConnectionInfo.Assign(AValue);
+  FConnectionSettings.Assign(AValue);
 end;
 
 procedure TgtStarDocsSDK.SetPreferences(const AValue: TgtPreferences);
@@ -1990,91 +2014,101 @@ begin
 end;
 
 { TgtConnectionInfo }
-constructor TgtConnectionInfo.Create;
+constructor TgtConnectionSettings.Create;
 begin
-  FApiServerVersion := '';
+  {FApiServerVersion := '';}
   FPollInterval := 1000;
-  //FApiServerUri := TIdURI.Create;
+  FApiServerUri := '';
   FApiKey := '';
   FApiSecret := '';
   FServerTimeout := 30000;
   FDocOperationTimeout := -1;
 end;
 
-procedure TgtConnectionInfo.Assign(Source: TPersistent);
+procedure TgtConnectionSettings.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtConnectionSettings;
 begin
-  if Source is TgtConnectionInfo then
+  if Dest is TgtConnectionSettings then
   begin
-    FApiServerVersion := TgtConnectionInfo(Source).FApiServerVersion;
-    FPollInterval := TgtConnectionInfo(Source).FPollInterval;
-    FApiServerUri := TgtConnectionInfo(Source).FApiServerUri;
-    FApiKey := TgtConnectionInfo(Source).FApiKey;
-    FApiSecret := TgtConnectionInfo(Source).FApiSecret;
-    FServerTimeout := TgtConnectionInfo(Source).FServerTimeout;
-    FDocOperationTimeout := TgtConnectionInfo(Source).FDocOperationTimeout;
-    Exit;
-  end;
-  inherited Assign(Source)
+    LDest := TgtConnectionSettings(Dest);
+    {LDest.FApiServerVersion := Self.FApiServerVersion;}
+    LDest.FPollInterval := Self.FPollInterval;
+    LDest.FApiServerUri := Self.FApiServerUri;
+    LDest.FApiKey := Self.FApiKey;
+    LDest.FApiSecret := Self.FApiSecret;
+    LDest.FServerTimeout := Self.FServerTimeout;
+    LDest.FDocOperationTimeout := Self.FDocOperationTimeout;
+  end
+  else inherited;
 end;
 
-destructor TgtConnectionInfo.Destroy;
+destructor TgtConnectionSettings.Destroy;
 begin
-  //FApiServerUri.Free;
   inherited;
 end;
 
 { TgtDocPasswordSettings }
-constructor TgtDocPasswordSettings.Create(AForceFullPermission: Boolean);
+constructor TgtDocPasswordPreferences.Create(AForceFullPermission: Boolean);
 begin
   FForceFullPermission := AForceFullPermission;
 end;
 
-destructor TgtDocPasswordSettings.Destroy;
+destructor TgtDocPasswordPreferences.Destroy;
 begin
   inherited;
 end;
 
-procedure TgtDocPasswordSettings.Assign(Source: TPersistent);
+procedure TgtDocPasswordPreferences.AssignTo(Dest: TPersistent);
 begin
-  if Source is TgtDocPasswordSettings then
+  if Dest is TgtDocPasswordPreferences then
   begin
-    FForceFullPermission := TgtDocPasswordSettings(Source).FForceFullPermission;
-    Exit;
-  end;
-  inherited Assign(Source);
+    TgtDocPasswordPreferences(Dest).FForceFullPermission := Self.FForceFullPermission;
+  end
+  else inherited;;
 end;
 
 { TgtPreferences }
-constructor TgtPreferences.Create;
+constructor TgtPreferences.Create(ASDK: TgtStarDocsSDK);
 begin
-  FDocPasswordSettings := TgtDocPasswordSettings.Create(False);
+  FDocPasswordPreferences := TgtDocPasswordPreferences.Create(False);
+  FSDK := ASDK;
 end;
 
-procedure TgtPreferences.Assign(Source: TPersistent);
+procedure TgtPreferences.AssignTo(Dest: TPersistent);
 begin
-  if Source is TgtPreferences then
+  if Dest is TgtPreferences then
   begin
-    FDocPasswordSettings.Assign(TgtPreferences(Source).FDocPasswordSettings);
-    Exit;
-  end;
-  inherited Assign(Source);
+    TgtPreferences(Dest).FDocPasswordPreferences.Assign(Self.FDocPasswordPreferences);
+  end
+  else inherited;
 end;
 
 destructor TgtPreferences.Destroy;
 begin
-  FreeAndNil(FDocPasswordSettings);
+  FreeAndNil(FDocPasswordPreferences);
   inherited;
 end;
 
-function TgtPreferences.GetDocPasswordSettings: TgtDocPasswordSettings;
+function TgtPreferences.GetDocPasswordPreferences: TgtDocPasswordPreferences;
 begin
-  Result := FDocPasswordSettings;
+  Result := FDocPasswordPreferences;
 end;
 
-procedure TgtPreferences.SetDocPasswordSettings(const AValue
-  : TgtDocPasswordSettings);
+procedure TgtPreferences.SetDocPasswordPreferences(const AValue
+  : TgtDocPasswordPreferences);
 begin
-  FDocPasswordSettings.Assign(AValue);
+  FDocPasswordPreferences.Assign(AValue);
+end;
+
+function TgtPreferences.GetViewerPreferences: TgtViewerPreferences;
+begin
+  Result := FSDK.FViewer.Preferences;
+end;
+
+procedure TgtPreferences.SetViewerPreferences(const AValue: TgtViewerPreferences);
+begin
+  FSDK.FViewer.Preferences.Assign(AValue);
 end;
 
 { TgtDocObject }
@@ -2507,15 +2541,19 @@ begin
 end;
 
 { TgtColor }
-procedure TgtColor.Assign(Source: TgtColor);
+procedure TgtColor.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtColor;
 begin
-  if Source <> nil then
+  if Dest is TgtColor then
   begin
-    FRed := Source.FRed;
-    FGreen := Source.FGreen;
-    FBlue := Source.FBlue;
-    FAlpha := Source.FAlpha;
-  end;
+    LDest := TgtColor(Dest);
+    LDest.FRed := Self.FRed;
+    LDest.FGreen := Self.FGreen;
+    LDest.FBlue := Self.FBlue;
+    LDest.FAlpha := Self.FAlpha;
+  end
+  else inherited;
 end;
 
 constructor TgtColor.Create(ARed: Byte; AGreen: Byte; ABlue: Byte;
@@ -3033,15 +3071,17 @@ begin
   SetLength(FImageEnhancementTechniques, 0);
 end;
 
-procedure TgtImageEnhancementSettings.Assign(Source: TPersistent);
+procedure TgtImageEnhancementSettings.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtImageEnhancementSettings;
 begin
-  if Source is TgtImageEnhancementSettings then
+  if Dest is TgtImageEnhancementSettings then
   begin
-    FImageEnhancementMode := TgtImageEnhancementSettings(Source).FImageEnhancementMode;
-    FImageEnhancementTechniques := Copy(
-      TgtImageEnhancementSettings(Source).FImageEnhancementTechniques, 0, MaxInt);
-  end;
-  inherited Assign(Source);
+    LDest := TgtImageEnhancementSettings(Dest);
+    LDest.FImageEnhancementMode := Self.FImageEnhancementMode;
+    LDest.FImageEnhancementTechniques := Copy(Self.FImageEnhancementTechniques, 0, MaxInt);
+  end
+  else inherited;
 end;
 
 function TgtImageEnhancementSettings.GetImageEnhancementTechniques: TArray<TgtImageEnhancementTechnique>;
@@ -3164,16 +3204,15 @@ var
   LResponseSuccess: TgtRestAPIResponseAuth;
 begin
   LRestRequest := TRestRequest.Create();
-  Result := nil;
   LResponseSuccess := nil;
   LResponseError := nil;
   FIsAuthenticated := False;
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
-      .Path('auth/token').WithCredentials(FStarDocs.FConnectionInfo.FApiKey,
-        FStarDocs.FConnectionInfo.FApiSecret)
-      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
+      .Domain(FStarDocs.FConnectionSettings.FApiServerUri)
+      .Path('auth/token').WithCredentials(FStarDocs.FConnectionSettings.FApiKey,
+        FStarDocs.FConnectionSettings.FApiSecret)
+      .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout);
     if AEntity <> '' then
     begin
       LRestRequest.UrlParam('entity_id', AEntity);
@@ -3223,18 +3262,17 @@ var
   LResponseCommon: TgtRestAPIResponseCommon;
 begin
   LRestRequest := TRestRequest.Create();
-  Result := nil;
   LResponseCommon := nil;
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
+      .Domain(FStarDocs.FConnectionSettings.FApiServerUri)
       .Path('docs')
-      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
     LRestRequest.FileParam('fileUpload', AFileNameWithPath);
     LRestRequest.BodyParam('password', APassword);
     LRestRequest.BodyParam('forceFullPermission',
-      BooleanToString[FStarDocs.Preferences.DocPasswordSettings.
+      BooleanToString[FStarDocs.Preferences.DocPassword.
       ForceFullPermission]);
     LRestResponse := LRestRequest.Post('');
     if LRestResponse.ResponseCode <> 200 then
@@ -3260,19 +3298,18 @@ var
   LRestRequest: TRestRequest;
   LResponseCommon: TgtRestAPIResponseCommon;
 begin
-  Result := nil;
   LResponseCommon := nil;
   LRestRequest := TRestRequest.Create();
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
+      .Domain(FStarDocs.FConnectionSettings.FApiServerUri)
       .Path('docs')
-      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
     LRestRequest.FileParam('fileUpload', AFileName, AStream);
     LRestRequest.BodyParam('password', APassword);
     LRestRequest.BodyParam('forceFullPermission',
-      BooleanToString[FStarDocs.Preferences.DocPasswordSettings.
+      BooleanToString[FStarDocs.Preferences.DocPassword.
       ForceFullPermission]);
     LRestResp := LRestRequest.Post('');
     if LRestResp.ResponseCode <> 200 then
@@ -3298,19 +3335,18 @@ var
   LRestRequest: TRestRequest;
   LResponseCommon: TgtRestAPIResponseCommon;
 begin
-  Result := nil;
   LResponseCommon := nil;
   LRestRequest := TRestRequest.Create();
   try
     LRestRequest
-      .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
+      .Domain(FStarDocs.FConnectionSettings.FApiServerUri)
       .Path('docs')
-      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+      .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
       .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
     LRestRequest.BodyParam('fileURL', AExternalURL);
     LRestRequest.BodyParam('password', APassword);
     LRestRequest.BodyParam('forceFullPermission',
-      BooleanToString[FStarDocs.Preferences.DocPasswordSettings.
+      BooleanToString[FStarDocs.Preferences.DocPassword.
       ForceFullPermission]);
     // Force multipart/form-data
     LRestRequest.AlwaysMultipartFormData := True;
@@ -3414,7 +3450,7 @@ begin
   LRestRequest := TRestRequest.Create;
   LRestRequest
     .Domain(LDocUri)
-    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+    .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
     .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
   try
     LRestResponse := LRestRequest.GetToStream(FOutStream);
@@ -3440,7 +3476,7 @@ begin
   LRestRequest := TRestRequest.Create;
   LRestRequest
     .Domain(LDocUri)
-    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+    .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
     .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
   try
     LRestResponse := LRestRequest.Delete;
@@ -3460,11 +3496,12 @@ var
   LNumFiles, LIndex: integer;
 begin
   LJsonResponse := nil;
+  LNumFiles := 0;
   LRestRequest := TRestRequest.Create;
   LRestRequest
-    .Domain(FStarDocs.FConnectionInfo.FApiServerUri)
+    .Domain(FStarDocs.FConnectionSettings.FApiServerUri)
     .Path('docs')
-    .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout)
+    .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout)
     .WithBearerToken(FStarDocs.FAuthResponse.AccessToken);
   try
     LRestResponse := LRestRequest.Get;
@@ -3522,7 +3559,7 @@ var
 begin
   LUrl := FStarDocs.GetDocUri(AFile) + '/info';
   LUrl := LUrl + ('?force-full-permission=' + BooleanToString
-    [FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission]);
+    [FStarDocs.Preferences.DocPassword.ForceFullPermission]);
   if APassword <> '' then
     LUrl := LUrl + ('&password=' + APassword);
   LJsonResponseStr := FStarDocs.IssueGetRequestAndPoll(LUrl);
@@ -3619,10 +3656,10 @@ begin
 
     LJsonStr := '{' + FStarDocs.EncodeJsonDocuments(LDocUris, APasswords,
       APageRanges);
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     LJsonStr := LJsonStr + '}';
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/merge';
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri + '/docs/ops/merge';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCommon>
@@ -3656,7 +3693,7 @@ begin
   if APageRanges <> nil then
     LJsonStr := LJsonStr + ',' + EncodeJsonPageRanges(APageRanges);
   LJsonStr := LJsonStr + '}]}';
-  LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/split-range';
+  LUrl := FStarDocs.FConnectionSettings.FApiServerUri + '/docs/ops/split-range';
   LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
     LJsonStr);
   LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCommon>
@@ -3690,7 +3727,7 @@ begin
   LJsonStr := LJsonStr + ',"separatorType":"' +
     FPageSeparator.EncodeString + '"';
   LJsonStr := LJsonStr + '}]}';
-  LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
+  LUrl := FStarDocs.FConnectionSettings.FApiServerUri +
     '/docs/ops/split-separator';
   LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
     LJsonStr);
@@ -3724,7 +3761,7 @@ begin
 
   LJsonStr := '{"encryptionLevel":"' + LEncryptionLevelStr + '"';
   LJsonStr := LJsonStr + ',"password":"' + APassword + '"';
-  if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+  if FStarDocs.Preferences.DocPassword.ForceFullPermission then
     LJsonStr := LJsonStr + ',"forceFullPermission":true';
 
   LJsonStr := LJsonStr + ',"newOpenPassword":"' + ANewOpenPassword + '"';
@@ -3759,7 +3796,7 @@ begin
 
   LJsonStr := '{';
   LJsonStr := LJsonStr + '"forceFullPermission":' + BooleanToString
-    [FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission];
+    [FStarDocs.Preferences.DocPassword.ForceFullPermission];
 
   if APassword <> '' then
     LJsonStr := LJsonStr + ',"password":"' + APassword + '"';
@@ -3807,7 +3844,7 @@ begin
   if APageRange <> nil then
     LJsonStr := LJsonStr + ',"pageRange":' + APageRange.ToJson();
 
-  if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+  if FStarDocs.Preferences.DocPassword.ForceFullPermission then
     LJsonStr := LJsonStr + ',"forceFullPermission":true';
 
   LJsonStr := LJsonStr + ',' + EncodeJsonSearchText(ASearchText);
@@ -3858,7 +3895,7 @@ begin
 
     LJsonStr := '{' + FStarDocs.EncodeJsonDocuments(LDocUris, APasswords,
       APageRanges);
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     if FImageEncoderSettings <> nil then
       LJsonStr := LJsonStr + (',' + FImageEncoderSettings.ToJson());
@@ -3867,7 +3904,7 @@ begin
       Integer(ATIFFCompressionType)).Substring(3) + '"';
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri +
       '/docs/ops/convert-tiff';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -3912,7 +3949,7 @@ begin
 
     LJsonStr := '{' + FStarDocs.EncodeJsonDocuments(LDocUris, APasswords,
       APageRanges);
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     if FImageEncoderSettings <> nil then
       LJsonStr := LJsonStr + (',' + FImageEncoderSettings.ToJson());
@@ -3924,7 +3961,7 @@ begin
       .Substring(3) + '"';
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri +
       '/docs/ops/convert-mtiff';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -4004,7 +4041,7 @@ begin
 
     LJsonStr := '{' + FStarDocs.EncodeJsonDocuments(LDocUris, APasswords,
       APageRanges);
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     if FPDFEncoderSettings <> nil then
       LJsonStr := LJsonStr + (',' + FPDFEncoderSettings.ToJson);
@@ -4015,7 +4052,7 @@ begin
       LJsonStr := LJsonStr + (',' + FConverterDigitizerSettings.ToJson);
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri +
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri +
       '/docs/ops/convert-pdf';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -4058,13 +4095,13 @@ begin
 
     LJsonStr := '{' + FStarDocs.EncodeJsonDocuments(LDocUris, APasswords,
       APageRanges);
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     if AImageEncoderSettings <> nil then
       LJsonStr := LJsonStr + (',' + AImageEncoderSettings.ToJson());
     LJsonStr := LJsonStr + '}';
 
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/docs/ops/'
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri + '/docs/ops/'
       + AUrlPath;
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
@@ -4247,16 +4284,19 @@ end;
 
 { TgtInitialView }
 
-procedure TgtInitialView.Assign
-  (Source: TgtInitialView);
+procedure TgtInitialView.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtInitialView;
 begin
-  if (Source <> nil) then
+  if (Dest is TgtInitialView) then
   begin
-    FZoomMode := Source.FZoomMode;
-    FRotation := Source.FRotation;
-    FColorInversionApplied := Source.FColorInversionApplied;
-    FNavigationPaneOpened := Source.FNavigationPaneOpened;
-  end;
+    LDest := TgtInitialView(Dest);
+    LDest.FZoomMode := Self.FZoomMode;
+    LDest.FRotation := Self.FRotation;
+    LDest.FColorInversionApplied := Self.FColorInversionApplied;
+    LDest.FNavigationPaneOpened := Self.FNavigationPaneOpened;
+  end
+  else inherited;
 end;
 
 constructor TgtInitialView.Create;
@@ -4287,16 +4327,19 @@ end;
 
 { TgtVisibleFileOperationControls }
 
-procedure TgtVisibleFileOperationControls.Assign
-  (Source: TgtVisibleFileOperationControls);
+procedure TgtVisibleFileOperationControls.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtVisibleFileOperationControls;
 begin
-  if (Source <> nil) then
+  if (Dest is TgtVisibleFileOperationControls) then
   begin
-    FOpen := Source.Open;
-    FSave := Source.Save;
-    FPrint := Source.Print;
-    FDownload := Source.Download;
-  end;
+    LDest := TgtVisibleFileOperationControls(Dest);
+    LDest.FOpen := Self.Open;
+    LDest.FSave := Self.Save;
+    LDest.FPrint := Self.Print;
+    LDest.FDownload := Self.Download;
+  end
+  else inherited;
 end;
 
 constructor TgtVisibleFileOperationControls.Create;
@@ -4325,18 +4368,21 @@ end;
 
 { TgtVisibleNavigationControls }
 
-procedure TgtVisibleNavigationControls.Assign
-  (Source: TgtVisibleNavigationControls);
+procedure TgtVisibleNavigationControls.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtVisibleNavigationControls;
 begin
-  if (Source <> nil) then
+  if (Dest is TgtVisibleNavigationControls) then
   begin
-    FFirstPage := Source.FFirstPage;
-    FLastPage := Source.FLastPage;
-    FPrevPage := Source.FPrevPage;
-    FNextPage := Source.FNextPage;
-    FPageIndicator := Source.FPageIndicator;
-    FGotoPage := Source.FGotoPage;
-  end;
+    LDest := TgtVisibleNavigationControls(Dest);
+    LDest.FFirstPage := Self.FFirstPage;
+    LDest.FLastPage := Self.FLastPage;
+    LDest.FPrevPage := Self.FPrevPage;
+    LDest.FNextPage := Self.FNextPage;
+    LDest.FPageIndicator := Self.FPageIndicator;
+    LDest.FGotoPage := Self.FGotoPage;
+  end
+  else inherited;
 end;
 
 constructor TgtVisibleNavigationControls.Create;
@@ -4368,17 +4414,6 @@ begin
 end;
 
 { TgtVisibleZoomControls }
-
-procedure TgtVisibleZoomControls.Assign(Source: TgtVisibleZoomControls);
-begin
-  if (Source <> nil) then
-  begin
-    FFixedSteps := Source.FFixedSteps;
-    FZoomIn := Source.FZoomIn;
-    FZoomOut := Source.FZoomOut;
-  end;
-end;
-
 constructor TgtVisibleZoomControls.Create;
 begin
   FFixedSteps := True;
@@ -4399,6 +4434,20 @@ begin
   Result := Result + ',"zoomIn":' + BooleanToString[FZoomIn];
   Result := Result + ',"zoomOut":' + BooleanToString[FZoomOut];
   Result := Result + '}';
+end;
+
+procedure TgtVisibleZoomControls.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtVisibleZoomControls;
+begin
+  if (Dest is TgtVisibleZoomControls) then
+  begin
+    LDest := TgtVisibleZoomControls(Dest);
+    LDest.FFixedSteps := Self.FFixedSteps;
+    LDest.FZoomIn := Self.FZoomIn;
+    LDest.FZoomOut := Self.FZoomOut
+  end
+  else inherited;
 end;
 
 { TgtVisibleRotationControls }
@@ -4424,6 +4473,19 @@ begin
   Result := Result + '}';
 end;
 
+procedure TgtVisibleRotationControls.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtVisibleRotationControls;
+begin
+  if (Dest is TgtVisibleRotationControls) then
+  begin
+    LDest := TgtVisibleRotationControls(Dest);
+    LDest.FClockwise := Self.FClockwise;
+    LDest.FCounterClockwise := Self.FCounterClockwise;
+  end
+  else inherited;
+end;
+
 { TgtVisibleColorInversionControls }
 
 constructor TgtVisibleColorInversionControls.Create;
@@ -4444,15 +4506,28 @@ begin
   Result := Result + '}';
 end;
 
+procedure TgtVisibleColorInversionControls.AssignTo(Dest: TPersistent);
+begin
+  if (Dest is TgtVisibleColorInversionControls) then
+  begin
+    TgtVisibleColorInversionControls(Dest).FAllPages := Self.FAllPages;
+  end
+  else inherited;
+end;
+
 { TgtSearchControls }
 
-procedure TgtSearch.Assign(Source: TgtSearch);
+procedure TgtSearch.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtSearch;
 begin
-  if (Source <> nil) then
+  if (Dest is TgtSearch) then
   begin
-    FEnableQuickSearch := Source.FEnableQuickSearch;
-    FHighlightColor.Assign(Source.FHighlightColor);
-  end;
+    LDest := TgtSearch(Dest);
+    LDest.FEnableQuickSearch := Self.FEnableQuickSearch;
+    LDest.FHighlightColor.Assign(Self.FHighlightColor);
+  end
+  else inherited;
 end;
 
 constructor TgtSearch.Create;
@@ -4516,21 +4591,41 @@ begin
   Result := Result + '}';
 end;
 
-{ TgtViewerFormFields }
-procedure TgtViewerFormFields.Assign(Source: TgtViewerFormFields);
+procedure TgtViewerNavigationPane.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtViewerNavigationPane;
 begin
-  if (Source <> nil) then
+  if (Dest is TgtViewerNavigationPane) then
   begin
-    FEnableFormFilling := Source.FEnableFormFilling;
-    FFormFieldHighlightColor.Assign(Source.FFormFieldHighlightColor);
-    FFormFieldReadonlyColor.Assign(Source.FFormFieldReadonlyColor);
-    FFormFieldFocusColor.Assign(Source.FFormFieldFocusColor);
-    FAllowJavaScriptExecution := Source.FAllowJavaScriptExecution;
+    LDest := TgtViewerNavigationPane(Dest);
+    LDest.FVisible := Self.FVisible;
+    LDest.FEnableBookmarks := Self.FEnableBookmarks;
+    LDest.FEnableThumbnails := Self.FEnableThumbnails;
+    LDest.FPosition := Self.FPosition;
+    LDest.FWidth := Self.FWidth;
+  end
+  else inherited;
+end;
+
+{ TgtViewerFormFields }
+procedure TgtViewerFormFields.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtViewerFormFields;
+begin
+  if (Dest is TgtViewerFormFields) then
+  begin
+    LDest := TgtViewerFormFields(Dest);
+    LDest.FEnableFormFilling := Self.FEnableFormFilling;
+    LDest.FFormFieldHighlightColor.Assign(Self.FFormFieldHighlightColor);
+    LDest.FFormFieldReadonlyColor.Assign(Self.FFormFieldReadonlyColor);
+    LDest.FFormFieldFocusColor.Assign(Self.FFormFieldFocusColor);
+    LDest.FAllowJavaScriptExecution := Self.FAllowJavaScriptExecution;
     {FEnableDataBinding := Source.FEnableDataBinding;
     FDataFieldMap.Assign(Source.FDataFieldMap);
     FDataSourceConnectionString := Source.FDataSourceConnectionString;
     FDataSourceReadOnly := Source.FDataSourceReadOnly;}
-  end;
+  end
+  else inherited;
 end;
 
 constructor TgtViewerFormFields.Create;
@@ -4609,11 +4704,11 @@ begin
 end;
 
 { TgtViewerInteractiveElements }
-procedure TgtViewerInteractiveElements.Assign(Source: TgtViewerInteractiveElements);
+procedure TgtViewerInteractiveElements.AssignTo(Dest: TPersistent);
 begin
-  if (Source <> nil) then
+  if (Dest is TgtViewerInteractiveElements) then
   begin
-    FFormFields.Assign(Source.FFormFields);
+    TgtViewerInteractiveElements(Dest).FFormFields.Assign(Self.FFormFields);
   end;
 end;
 
@@ -4633,6 +4728,11 @@ begin
   Result := FFormFields;
 end;
 
+procedure TgtViewerInteractiveElements.SetFormFields (AValue: TgtViewerFormFields);
+begin
+  FFormFields.Assign(AValue);
+end;
+
 function TgtViewerInteractiveElements.ToJson: String;
 begin
   Result := '"interactiveElements":{';
@@ -4642,7 +4742,7 @@ end;
 
 { TgtViewerSettings }
 
-constructor TgtViewerSettings.Create;
+constructor TgtViewerPreferences.Create;
 begin
   FToolbarVisible := True;
   FFullScreenVisible := False;
@@ -4657,7 +4757,7 @@ begin
   FInitialView := TgtInitialView.Create;
 end;
 
-destructor TgtViewerSettings.Destroy;
+destructor TgtViewerPreferences.Destroy;
 begin
   FVisibleFileOperationControls.Free;
   FVisibleNavigationControls.Free;
@@ -4671,56 +4771,101 @@ begin
   inherited;
 end;
 
-function TgtViewerSettings.GetVisibleFileOperationControls
+function TgtViewerPreferences.GetVisibleFileOperationControls
   : TgtVisibleFileOperationControls;
 begin
   Result := FVisibleFileOperationControls;
 end;
 
-function TgtViewerSettings.GetSearch: TgtSearch;
+procedure TgtViewerPreferences.SetVisibleFileOperationControls(AValue: TgtVisibleFileOperationControls);
+begin
+  FVisibleFileOperationControls.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetSearch: TgtSearch;
 begin
   Result := FSearch;
 end;
 
-function TgtViewerSettings.GetVisibleColorInversionControls
+procedure TgtViewerPreferences.SetSearch(AValue: TgtSearch);
+begin
+  FSearch.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetVisibleColorInversionControls
   : TgtVisibleColorInversionControls;
 begin
   Result := FVisibleColorInversionControls;
 end;
 
-function TgtViewerSettings.GetVisibleNavigationControls
+procedure TgtViewerPreferences.SetVisibleColorInversionControls(AValue: TgtVisibleColorInversionControls);
+begin
+  FVisibleColorInversionControls.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetVisibleNavigationControls
   : TgtVisibleNavigationControls;
 begin
   Result := FVisibleNavigationControls;
 end;
 
-function TgtViewerSettings.GetVisibleRotationControls
+procedure TgtViewerPreferences.SetVisibleNavigationControls(AValue: TgtVisibleNavigationControls);
+begin
+  FVisibleNavigationControls.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetVisibleRotationControls
   : TgtVisibleRotationControls;
 begin
   Result := FVisibleRotationControls;
 end;
 
-function TgtViewerSettings.GetVisibleZoomControls: TgtVisibleZoomControls;
+procedure TgtViewerPreferences.SetVisibleRotationControls(AValue: TgtVisibleRotationControls);
+begin
+  FVisibleRotationControls.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetVisibleZoomControls: TgtVisibleZoomControls;
 begin
   Result := FVisibleZoomControls;
 end;
 
-function TgtViewerSettings.GetNavigationPane: TgtViewerNavigationPane;
+procedure TgtViewerPreferences.SetVisibleZoomControls(AValue: TgtVisibleZoomControls);
+begin
+  FVisibleZoomControls.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetNavigationPane: TgtViewerNavigationPane;
 begin
   Result := FNavigationPane;
 end;
 
-function TgtViewerSettings.GetInteractiveElements: TgtViewerInteractiveElements;
+procedure TgtViewerPreferences.SetNavigationPane(AValue: TgtViewerNavigationPane);
+begin
+  FNavigationPane.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetInteractiveElements: TgtViewerInteractiveElements;
 begin
   Result := FInteractiveElements;
 end;
 
-function TgtViewerSettings.GetInitialView: TgtInitialView;
+procedure TgtViewerPreferences.SetInteractiveElements(AValue: TgtViewerInteractiveElements);
+begin
+  FInteractiveElements.Assign(AValue);
+end;
+
+function TgtViewerPreferences.GetInitialView: TgtInitialView;
 begin
   Result := FInitialView;
 end;
 
-function TgtViewerSettings.ToJson: String;
+procedure TgtViewerPreferences.SetInitialView(AValue: TgtInitialView);
+begin
+  FInitialView.Assign(AValue);
+end;
+
+function TgtViewerPreferences.ToJson: String;
 begin
   Result := '"viewerSettings":{';
   Result := Result + '"toolbarVisible":' + BooleanToString[ToolbarVisible];
@@ -4736,6 +4881,28 @@ begin
   Result := Result + ',' + FInteractiveElements.ToJson();
   Result := Result + ',' + FInitialView.ToJson();
   Result := Result + '}';
+end;
+
+procedure TgtViewerPreferences.AssignTo(Dest: TPersistent);
+var
+  LDest: TgtViewerPreferences;
+begin
+  if (Dest is TgtViewerPreferences) then
+  begin
+    LDest := TgtViewerPreferences(Dest);
+    LDest.FToolbarVisible := Self.FToolbarVisible;
+    LDest.FFullScreenVisible := Self.FFullScreenVisible;
+    LDest.FVisibleFileOperationControls.Assign(Self.FVisibleFileOperationControls);
+    LDest.FVisibleNavigationControls.Assign(Self.FVisibleNavigationControls);
+    LDest.FVisibleZoomControls.Assign(Self.FVisibleZoomControls);
+    LDest.FVisibleRotationControls.Assign(Self.FVisibleRotationControls);
+    LDest.FVisibleColorInversionControls.Assign(Self.FVisibleColorInversionControls);
+    LDest.FSearch.Assign(Self.FSearch);
+    LDest.FNavigationPane.Assign(Self.FNavigationPane);
+    LDest.FInteractiveElements.Assign(Self.FInteractiveElements);
+    LDest.FInitialView.Assign(Self.FInitialView);
+  end
+  else inherited;
 end;
 
 { TgtDataFieldMapping }
@@ -4868,7 +5035,7 @@ end;
 constructor TgtViewer.Create(AStarDocs: TgtStarDocsSDK);
 begin
   FStarDocs := AStarDocs;
-  FViewerSettings := TgtViewerSettings.Create;
+  FViewerSettings := TgtViewerPreferences.Create;
 end;
 
 function TgtViewer.CreateView(AFile: TgtFileObject; APassword: string)
@@ -4892,10 +5059,10 @@ begin
     begin
       LJsonStr := LJsonStr + (',' + FViewerSettings.ToJson());
     end;
-    if FStarDocs.Preferences.DocPasswordSettings.ForceFullPermission then
+    if FStarDocs.Preferences.DocPassword.ForceFullPermission then
       LJsonStr := LJsonStr + ',"forceFullPermission":true';
     LJsonStr := LJsonStr + '}';
-    LUrl := FStarDocs.FConnectionInfo.FApiServerUri + '/viewsessions';
+    LUrl := FStarDocs.FConnectionSettings.FApiServerUri + '/viewsessions';
     LJsonResponseStr := FStarDocs.IssuePostPutRequestAndPoll(LUrl, True,
       LJsonStr);
     LJsonResponse := TJSON.JsonToObject<TgtRestAPIResponseCreateView>
@@ -4915,6 +5082,7 @@ function TgtViewer.GetJavaScriptViewerObject
 var
   LUrl: TIdURI;
 begin
+  LUrl := nil;
   try
     LUrl := TIdURI.Create(AResponse.Url);
     Result := 'docViewer' + LUrl.Document;
@@ -4929,11 +5097,12 @@ var
   LRestResp: THttpResponse;
   LRestRequest: TRestRequest;
 begin
+  LRestRequest := nil;
   try
     LRestRequest := TRestRequest.Create();
     LRestRequest
       .Domain(AResponse.Url)
-      .WithReadTimeout(FStarDocs.FConnectionInfo.FServerTimeout);
+      .WithReadTimeout(FStarDocs.FConnectionSettings.FServerTimeout);
     LRestResp := LRestRequest.Delete;
     if (LRestResp.ResponseCode <> 200) and (LRestResp.ResponseCode <> 204) then
     begin
@@ -4953,7 +5122,7 @@ begin
   inherited;
 end;
 
-function TgtViewer.GetViewerSettings: TgtViewerSettings;
+function TgtViewer.GetViewerPreferences: TgtViewerPreferences;
 begin
   Result := FViewerSettings;
 end;

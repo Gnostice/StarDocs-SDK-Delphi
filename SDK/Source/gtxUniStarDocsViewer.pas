@@ -30,12 +30,12 @@ type
     // Events
     FOnFormLoaded: TNotifyEvent;
     FOnFormModified: TNotifyEvent;
-    FOnBeforeFormSubmit: TgtBeforeFormSubmitEvent;
-    FOnAfterFormSubmit: TNotifyEvent;
-    FOnFieldClicked: TgtFieldEvent;
-    FOnFieldFocusIn: TgtFieldEvent;
-    FOnFieldFocusOut: TgtFieldEvent;
-    FOnFieldChanged: TgtFieldEvent;
+    FBeforeFormSubmit: TgtBeforeFormSubmitEvent;
+    FAfterFormSubmit: TNotifyEvent;
+    FOnFormFieldClicked: TgtFieldEvent;
+    FOnFormFieldEnter: TgtFieldEvent;
+    FOnFormFieldExit: TgtFieldEvent;
+    FOnFormFieldChanged: TgtFieldEvent;
 
     // To track JS async callbacks with Delphi callback procedures
     FForms_GetAllFormFields_CallBack: TgtGetAllFormFieldsCallBackProc;
@@ -49,12 +49,11 @@ type
 
     procedure H_OnFormLoaded(AThis: TJSObject; EventName: string; AParams: TUniStrings);
     procedure H_OnFormModified(AThis: TJSObject; EventName: string; AParams: TUniStrings);
-    procedure H_OnBeforeFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
-    procedure H_OnAfterFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
-    procedure H_OnFieldEvent(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+    procedure H_BeforeFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+    procedure H_AfterFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+    procedure H_OnFormFieldEvent(AThis: TJSObject; EventName: string; AParams: TUniStrings);
 
     // Util methods
-    function ConvertJSONToFormFields(JsonStr: String): TList<TgtPDFFormField>;
     function ConvertJsonToFormField(JsonStr: String): TgtPDFFormField;
     function JoinStrArray(AItems: TList<String>; ASeparator: String): String;
     function SplitToInt(AStr: String; ASeparator: String): TList<Integer>;
@@ -65,12 +64,12 @@ type
     procedure ConfigJSClasses(ALoading: Boolean); override;
     procedure SetOnFormLoaded(AValue: TNotifyEvent);
     procedure SetOnFormModified(AValue: TNotifyEvent);
-    procedure SetOnBeforeFormSubmit(AValue: TgtBeforeFormSubmitEvent);
-    procedure SetOnAfterFormSubmit(AValue: TNotifyEvent);
-    procedure SetOnFieldClicked(AValue: TgtFieldEvent);
-    procedure SetOnFieldFocusIn(AValue: TgtFieldEvent);
-    procedure SetOnFieldFocusOut(AValue: TgtFieldEvent);
-    procedure SetOnFieldChanged(AValue: TgtFieldEvent);
+    procedure SetBeforeFormSubmit(AValue: TgtBeforeFormSubmitEvent);
+    procedure SetAfterFormSubmit(AValue: TNotifyEvent);
+    procedure SetOnFormFieldClicked(AValue: TgtFieldEvent);
+    procedure SetOnFormFieldEnter(AValue: TgtFieldEvent);
+    procedure SetOnFormFieldExit(AValue: TgtFieldEvent);
+    procedure SetOnFormFieldChanged(AValue: TgtFieldEvent);
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -107,12 +106,12 @@ type
     // Events
     property OnFormLoaded: TNotifyEvent read FOnFormLoaded write SetOnFormLoaded;
     property OnFormModified: TNotifyEvent read FOnFormModified write SetOnFormModified;
-    property OnBeforeFormSubmit: TgtBeforeFormSubmitEvent read FOnBeforeFormSubmit write SetOnBeforeFormSubmit;
-    property OnAfterFormSubmit: TNotifyEvent read FOnAfterFormSubmit write SetOnAfterFormSubmit;
-    property OnFieldClicked: TgtFieldEvent read FOnFieldClicked write SetOnFieldClicked;
-    property OnFieldFocusIn: TgtFieldEvent read FOnFieldFocusIn write SetOnFieldFocusIn;
-    property OnFieldFocusOut: TgtFieldEvent read FOnFieldFocusOut write SetOnFieldFocusOut;
-    property OnFieldChanged: TgtFieldEvent read FOnFieldChanged write SetOnFieldChanged;
+    property BeforeFormSubmit: TgtBeforeFormSubmitEvent read FBeforeFormSubmit write SetBeforeFormSubmit;
+    property AfterFormSubmit: TNotifyEvent read FAfterFormSubmit write SetAfterFormSubmit;
+    property OnFormFieldClicked: TgtFieldEvent read FOnFormFieldClicked write SetOnFormFieldClicked;
+    property OnFormFieldEnter: TgtFieldEvent read FOnFormFieldEnter write SetOnFormFieldEnter;
+    property OnFormFieldExit: TgtFieldEvent read FOnFormFieldExit write SetOnFormFieldExit;
+    property OnFormFieldChanged: TgtFieldEvent read FOnFormFieldChanged write SetOnFormFieldChanged;
 
   end;
 
@@ -343,27 +342,27 @@ begin
     FOnFormModified(Self);
 end;
 
-procedure TgtUniStarDocsViewer.H_OnBeforeFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+procedure TgtUniStarDocsViewer.H_BeforeFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
 var
   FormDataJsonStr: string;
   FormData: TgtPDFFormData;
 begin
-  if Assigned(FOnBeforeFormSubmit) then
+  if Assigned(FBeforeFormSubmit) then
   begin
     // Convert stringified JSON form field object to Delphi type
     FormDataJsonStr := AParams['FormData'].AsString;
     FormData := TJson.JsonToObject<TgtPDFFormData>(FormDataJsonStr);
-    FOnBeforeFormSubmit(Self, FormData);
+    FBeforeFormSubmit(Self, FormData);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.H_OnAfterFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+procedure TgtUniStarDocsViewer.H_AfterFormSubmit(AThis: TJSObject; EventName: string; AParams: TUniStrings);
 begin
-  if Assigned(FOnAfterFormSubmit) then
-    FOnAfterFormSubmit(Self);
+  if Assigned(FAfterFormSubmit) then
+    FAfterFormSubmit(Self);
 end;
 
-procedure TgtUniStarDocsViewer.H_OnFieldEvent(AThis: TJSObject; EventName: string; AParams: TUniStrings);
+procedure TgtUniStarDocsViewer.H_OnFormFieldEvent(AThis: TJSObject; EventName: string; AParams: TUniStrings);
 var
   FormFieldJsonStr: string;
   FormField: TgtPDFFormField;
@@ -372,14 +371,14 @@ begin
   FormFieldJsonStr := AParams['FormField'].AsString;
   FormField := ConvertJsonToFormField(FormFieldJsonStr);
   // Dispatch based on event name
-  if (EventName = 'onFieldClicked') And Assigned(FOnFieldClicked) then
-    FOnFieldClicked(Self, FormField);
-  if (EventName = 'onFieldFocusIn') And Assigned(FOnFieldFocusIn) then
-    FOnFieldFocusIn(Self, FormField);
-  if (EventName = 'onFieldFocusOut') And Assigned(FOnFieldFocusOut) then
-    FOnFieldFocusOut(Self, FormField);
-  if (EventName = 'onFieldChanged') And Assigned(FOnFieldChanged) then
-    FOnFieldChanged(Self, FormField);
+  if (EventName = 'onFieldClicked') And Assigned(FOnFormFieldClicked) then
+    FOnFormFieldClicked(Self, FormField);
+  if (EventName = 'onFieldFocusIn') And Assigned(FOnFormFieldEnter) then
+    FOnFormFieldEnter(Self, FormField);
+  if (EventName = 'onFieldFocusOut') And Assigned(FOnFormFieldExit) then
+    FOnFormFieldExit(Self, FormField);
+  if (EventName = 'onFieldChanged') And Assigned(FOnFormFieldChanged) then
+    FOnFormFieldChanged(Self, FormField);
 end;
 
 procedure TgtUniStarDocsViewer.SetOnFormLoaded(AValue: TNotifyEvent);
@@ -406,75 +405,75 @@ begin
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnBeforeFormSubmit(AValue: TgtBeforeFormSubmitEvent);
+procedure TgtUniStarDocsViewer.SetBeforeFormSubmit(AValue: TgtBeforeFormSubmitEvent);
 begin
-  FOnBeforeFormSubmit := AValue;
+  FBeforeFormSubmit := AValue;
   if WebMode then
   begin
-    if Assigned(FOnBeforeFormSubmit) then
-      JSAddEvent('onBeforeFormSubmit', ['FormData', '%1'], H_OnBeforeFormSubmit)
+    if Assigned(FBeforeFormSubmit) then
+      JSAddEvent('onBeforeFormSubmit', ['FormData', '%1'], H_BeforeFormSubmit)
     else
-      JSRemoveEvent('onBeforeFormSubmit', H_OnBeforeFormSubmit);
+      JSRemoveEvent('onBeforeFormSubmit', H_BeforeFormSubmit);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnAfterFormSubmit(AValue: TNotifyEvent);
+procedure TgtUniStarDocsViewer.SetAfterFormSubmit(AValue: TNotifyEvent);
 begin
-  FOnAfterFormSubmit := AValue;
+  FAfterFormSubmit := AValue;
   if WebMode then
   begin
-    if Assigned(FOnAfterFormSubmit) then
-      JSAddEvent('onAfterFormSubmit', [], H_OnAfterFormSubmit)
+    if Assigned(FAfterFormSubmit) then
+      JSAddEvent('onAfterFormSubmit', [], H_AfterFormSubmit)
     else
-      JSRemoveEvent('onAfterFormSubmit', H_OnAfterFormSubmit);
+      JSRemoveEvent('onAfterFormSubmit', H_AfterFormSubmit);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnFieldClicked(AValue: TgtFieldEvent);
+procedure TgtUniStarDocsViewer.SetOnFormFieldClicked(AValue: TgtFieldEvent);
 begin
-  FOnFieldClicked := AValue;
+  FOnFormFieldClicked := AValue;
   if WebMode then
   begin
-    if Assigned(FOnFieldClicked) then
-      JSAddEvent('onFieldClicked', ['FormField', '%1'], H_OnFieldEvent)
+    if Assigned(FOnFormFieldClicked) then
+      JSAddEvent('onFieldClicked', ['FormField', '%1'], H_OnFormFieldEvent)
     else
-      JSRemoveEvent('onFieldClicked', H_OnFieldEvent);
+      JSRemoveEvent('onFieldClicked', H_OnFormFieldEvent);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnFieldFocusIn(AValue: TgtFieldEvent);
+procedure TgtUniStarDocsViewer.SetOnFormFieldEnter(AValue: TgtFieldEvent);
 begin
-  FOnFieldFocusIn := AValue;
+  FOnFormFieldEnter := AValue;
   if WebMode then
   begin
-    if Assigned(FOnFieldFocusIn) then
-      JSAddEvent('onFieldFocusIn', ['FormField', '%1'], H_OnFieldEvent)
+    if Assigned(FOnFormFieldEnter) then
+      JSAddEvent('onFieldFocusIn', ['FormField', '%1'], H_OnFormFieldEvent)
     else
-      JSRemoveEvent('onFieldFocusIn', H_OnFieldEvent);
+      JSRemoveEvent('onFieldFocusIn', H_OnFormFieldEvent);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnFieldFocusOut(AValue: TgtFieldEvent);
+procedure TgtUniStarDocsViewer.SetOnFormFieldExit(AValue: TgtFieldEvent);
 begin
-  FOnFieldFocusOut := AValue;
+  FOnFormFieldExit := AValue;
   if WebMode then
   begin
-    if Assigned(FOnFieldFocusOut) then
-      JSAddEvent('onFieldFocusOut', ['FormField', '%1'], H_OnFieldEvent)
+    if Assigned(FOnFormFieldExit) then
+      JSAddEvent('onFieldFocusOut', ['FormField', '%1'], H_OnFormFieldEvent)
     else
-      JSRemoveEvent('onFieldFocusOut', H_OnFieldEvent);
+      JSRemoveEvent('onFieldFocusOut', H_OnFormFieldEvent);
   end;
 end;
 
-procedure TgtUniStarDocsViewer.SetOnFieldChanged(AValue: TgtFieldEvent);
+procedure TgtUniStarDocsViewer.SetOnFormFieldChanged(AValue: TgtFieldEvent);
 begin
-  FOnFieldChanged := AValue;
+  FOnFormFieldChanged := AValue;
   if WebMode then
   begin
-    if Assigned(FOnFieldChanged) then
-      JSAddEvent('onFieldChanged', ['FormField', '%1'], H_OnFieldEvent)
+    if Assigned(FOnFormFieldChanged) then
+      JSAddEvent('onFieldChanged', ['FormField', '%1'], H_OnFormFieldEvent)
     else
-      JSRemoveEvent('onFieldChanged', H_OnFieldEvent);
+      JSRemoveEvent('onFieldChanged', H_OnFormFieldEvent);
   end;
 end;
 
@@ -645,37 +644,6 @@ begin
     ParamBoolean := AParams['gnParam0'].AsBoolean;
     FForms_GetCheckBoxChecked_CallBack(ParamBoolean);
   end
-end;
-
-function TgtUniStarDocsViewer.ConvertJSONToFormFields(JsonStr: String): TList<TgtPDFFormField>;
-var
-  FormFieldItems: TArray<String>;
-  Pos1, Pos2: Integer;
-  FormFieldStr: String;
-  Index: Integer;
-begin
-  // Input is not really valid JSON. It's an array of JSON objects.
-  Result := TList<TgtPDFFormField>.Create();
-  try
-    if (Length(JsonStr) < 4) or (not JsonStr.StartsWith('[{')) or (not JsonStr.EndsWith('}]')) then
-      exit;
-
-    JsonStr := JsonStr.Trim(['[', ']']);
-    while True do
-    begin
-      Pos1 := JsonStr.IndexOf('{');
-      Pos2 := JsonStr.IndexOf('}');
-      if (Pos1 = -1) or (Pos2 = -1) or (Pos1 > Pos2) then
-        break;
-      FormFieldStr := JsonStr.Substring(Pos1, Pos2 - Pos1 + 1);
-      JsonStr := JsonStr.Substring(Pos2 + 1);
-    end;
-    FormFieldItems := JsonStr.Split([',']);
-    for Index := 0 to Length(FormFieldItems) - 1 do
-      Result.Add(ConvertJsonToFormField(FormFieldItems[Index]));
-  except
-    Result.Free;
-  end;
 end;
 
 function TgtUniStarDocsViewer.ConvertJsonToFormField(JsonStr: String): TgtPDFFormField;
