@@ -135,6 +135,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_Description>Gnostice StarDocs Document Viewer for UniGUI</DCC_Description>
         <DllSuffix>250</DllSuffix>
+        <DCC_UnitSearchPath>.\bin;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
