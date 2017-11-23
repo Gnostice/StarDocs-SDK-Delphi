@@ -35,6 +35,6 @@ requires
   gtUniStarDocsViewer;
 
 contains
-  gtxUniStarDocsViewer_reg in '..\gtxUniStarDocsViewer_reg.pas';
+  gtxUniStarDocsViewerReg in '..\gtxUniStarDocsViewerReg.pas';
 
 end.

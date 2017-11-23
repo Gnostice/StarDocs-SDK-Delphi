@@ -35,6 +35,6 @@ requires
   gtStarDocsSDK;
 
 contains
-  gtxStarDocsSDK_reg in '..\gtxStarDocsSDK_reg.pas';
+  gtxStarDocsSDKReg in '..\gtxStarDocsSDKReg.pas';
 
 end.
