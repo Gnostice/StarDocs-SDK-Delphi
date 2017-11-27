@@ -1,6 +1,6 @@
 StarDocs SDK for Delphi - Installation Instructions
 ----------------------------------------------------
-1. Close Delphi/RAD Studion IDE.
+1. Close Delphi/RAD Studio IDE.
 2. Add "<StarDocs Root>\SDK\Source\Packages\bin" to the system path environment variable.
 3. Open project "<StarDocs Root>\SDK\Source\Packages\StarDocsSDK.groupproj". 
 4. Right-click "StarDocsSDK" in the Project Manager and choose "Build All".
