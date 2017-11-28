@@ -17,10 +17,10 @@ begin
   LoginSuccess := False;
   if TfrmAuthentication.execute then
   begin
-    Form1.gtStarDocsSDK1.ConnectionInfo.ApiServerUri.URI := CURL;
-    Form1.gtStarDocsSDK1.ConnectionInfo.ApiKey := CKey;
-    Form1.gtStarDocsSDK1.ConnectionInfo.ApiSecret := CSecret;
-    Form1.gtStarDocsSDK1.Preferences.DocPasswordSettings.ForceFullPermission := True;
+    Form1.gtStarDocsSDK1.ConnectionSettings.ApiServerUri := CURL;
+    Form1.gtStarDocsSDK1.ConnectionSettings.ApiKey := CKey;
+    Form1.gtStarDocsSDK1.ConnectionSettings.ApiSecret := CSecret;
+    Form1.gtStarDocsSDK1.Preferences.DocPassword.ForceFullPermission := True;
     try
       Form1.gtStarDocsSDK1.AuthResponse := Form1.gtStarDocsSDK1.Auth.loginApp;
       LoginSuccess := True;

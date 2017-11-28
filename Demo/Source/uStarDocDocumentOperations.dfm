@@ -173,7 +173,7 @@ object Form1: TForm1
     Top = 43
     Width = 625
     Height = 540
-    ActivePage = tbshConvert
+    ActivePage = tbshView
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object tbshView: TTabSheet
@@ -241,9 +241,8 @@ object Form1: TForm1
             Height = 467
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = -5
-            ExplicitWidth = 550
-            ExplicitHeight = 468
+            ExplicitLeft = 0
+            ExplicitTop = -3
             ControlData = {
               4C0000005B3F0000443000000000000000000000000000000000000000000000
               000000004C000000000000000000000001000000E0D057007335CF11AE690800
@@ -1048,10 +1047,57 @@ object Form1: TForm1
     end
   end
   object gtStarDocsSDK1: TgtStarDocsSDK
-    ConnectionInfo.ServerTimeout = -1
-    ConnectionInfo.DocOperationTimeout = -1
-    ConnectionInfo.PollInterval = 1000
-    Preferences.DocPasswordSettings.ForceFullPermission = False
+    ConnectionSettings.ServerTimeout = 30000
+    ConnectionSettings.DocOperationTimeout = -1
+    ConnectionSettings.PollInterval = 1000
+    Preferences.DocPassword.ForceFullPermission = False
+    Preferences.Viewer.ToolbarVisible = True
+    Preferences.Viewer.FullScreenVisible = False
+    Preferences.Viewer.VisibleFileOperationControls.Open = False
+    Preferences.Viewer.VisibleFileOperationControls.Save = False
+    Preferences.Viewer.VisibleFileOperationControls.Print = False
+    Preferences.Viewer.VisibleFileOperationControls.Download = False
+    Preferences.Viewer.VisibleNavigationControls.FirstPage = True
+    Preferences.Viewer.VisibleNavigationControls.LastPage = True
+    Preferences.Viewer.VisibleNavigationControls.PrevPage = True
+    Preferences.Viewer.VisibleNavigationControls.NextPage = True
+    Preferences.Viewer.VisibleNavigationControls.PageIndicator = True
+    Preferences.Viewer.VisibleNavigationControls.GotoPage = True
+    Preferences.Viewer.VisibleZoomControls.FixedSteps = True
+    Preferences.Viewer.VisibleZoomControls.ZoomIn = True
+    Preferences.Viewer.VisibleZoomControls.ZoomOut = True
+    Preferences.Viewer.VisibleRotationControls.Clockwise = True
+    Preferences.Viewer.VisibleRotationControls.CounterClockwise = True
+    Preferences.Viewer.VisibleColorInversionControls.AllPages = False
+    Preferences.Viewer.Search.EnableQuickSearch = True
+    Preferences.Viewer.Search.QuickSearchVisible = False
+    Preferences.Viewer.Search.HighlightColor.Red = 255
+    Preferences.Viewer.Search.HighlightColor.Green = 255
+    Preferences.Viewer.Search.HighlightColor.Blue = 0
+    Preferences.Viewer.Search.HighlightColor.Alpha = 100
+    Preferences.Viewer.NavigationPane.Visible = True
+    Preferences.Viewer.NavigationPane.EnableBookmarks = True
+    Preferences.Viewer.NavigationPane.EnableThumbnails = True
+    Preferences.Viewer.NavigationPane.Position = nppAuto
+    Preferences.Viewer.NavigationPane.Width = 200
+    Preferences.Viewer.InteractiveElements.FormFields.EnableFormFilling = True
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldHighlightColor.Red = 204
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldHighlightColor.Green = 215
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldHighlightColor.Blue = 255
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldHighlightColor.Alpha = 50
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldReadonlyColor.Red = 246
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldReadonlyColor.Green = 246
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldReadonlyColor.Blue = 246
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldReadonlyColor.Alpha = 100
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldFocusColor.Red = 255
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldFocusColor.Green = 255
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldFocusColor.Blue = 255
+    Preferences.Viewer.InteractiveElements.FormFields.FormFieldFocusColor.Alpha = 100
+    Preferences.Viewer.InteractiveElements.FormFields.AllowJavaScriptExecution = False
+    Preferences.Viewer.InitialView.ZoomMode = pzmFitWidth
+    Preferences.Viewer.InitialView.Rotation = praZero
+    Preferences.Viewer.InitialView.ColorInversionApplied = False
+    Preferences.Viewer.InitialView.NavigationPaneOpened = False
     Left = 516
     Top = 6
   end

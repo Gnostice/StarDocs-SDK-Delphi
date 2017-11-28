@@ -526,32 +526,32 @@ end;
 
 procedure TForm1.btnViewClick(Sender: TObject);
 var
-  LResponse: TgtViewResponse;
+  LResponse: TgtCreateViewResponse;
   DocObject: TgtDocObject;
   HighlightColor: TgtColor;
 begin
   btnView.Enabled := False;
   DocObject := gtStarDocsSDK1.Storage.Upload(edViewLoad.Text, '');
-  gtStarDocsSDK1.Viewer.ViewerSettings.InteractiveElements.
+  gtStarDocsSDK1.Preferences.Viewer.InteractiveElements.
     FormFields.EnableFormFilling := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.InteractiveElements.
+  gtStarDocsSDK1.Preferences.Viewer.InteractiveElements.
     FormFields.AllowJavaScriptExecution := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.FullScreenVisible := False;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleNavigationControls.
+  gtStarDocsSDK1.Preferences.Viewer.FullScreenVisible := False;
+  gtStarDocsSDK1.Preferences.Viewer.VisibleNavigationControls.
     GotoPage := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleColorInversionControls.
+  gtStarDocsSDK1.Preferences.Viewer.VisibleColorInversionControls.
     AllPages := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleFileOperationControls.
+  gtStarDocsSDK1.Preferences.Viewer.VisibleFileOperationControls.
     Open := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleFileOperationControls.
+  gtStarDocsSDK1.Preferences.Viewer.VisibleFileOperationControls.
     Save := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleFileOperationControls.
+  gtStarDocsSDK1.Preferences.Viewer.VisibleFileOperationControls.
     Download := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.VisibleFileOperationControls.
+  gtStarDocsSDK1.Preferences.Viewer.VisibleFileOperationControls.
     Print := True;
-  gtStarDocsSDK1.Viewer.ViewerSettings.SearchControls.EnableQuickSearch := True;
+  gtStarDocsSDK1.Preferences.Viewer.Search.EnableQuickSearch := True;
   HighlightColor := TgtColor.Create(255, 255, 0);
-  gtStarDocsSDK1.Viewer.ViewerSettings.SearchControls.HighlightColor.Assign
+  gtStarDocsSDK1.Preferences.Viewer.Search.HighlightColor.Assign
     (HighlightColor);
   HighlightColor.Free;
 
