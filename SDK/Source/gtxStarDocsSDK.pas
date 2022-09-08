@@ -1,6 +1,6 @@
 {
   Gnostice StarDocs v2
-  Copyright © Gnostice Information Technologies Private Limited, Bangalore, India
+  Copyright Â© Gnostice Information Technologies Private Limited, Bangalore, India
   http://www.gnostice.com
 }
 
@@ -1364,7 +1364,7 @@ type
     FEnableBookmarks: Boolean;
     FEnableThumbnails: Boolean;
     FPosition: TgtNavigationPanePosition;
-    FWidth: integer;
+    FWidth: Integer;
     function ToJson(): String;
   public
     constructor Create;
@@ -1379,7 +1379,7 @@ type
       write FEnableThumbnails;
     property Position: TgtNavigationPanePosition read FPosition
       write FPosition;
-    property Width: integer read FWidth
+    property Width: Integer read FWidth
       write FWidth;
   end;
 
@@ -1441,6 +1441,9 @@ type
   private
     FToolbarVisible: Boolean;
     FFullScreenVisible: Boolean;
+		FLazyLoading: Boolean;
+		FDisableContextMenu: Boolean;
+		FRenderingDpi: Integer;
     FVisibleFileOperationControls: TgtVisibleFileOperationControls;
     FVisibleNavigationControls: TgtVisibleNavigationControls;
     FVisibleZoomControls: TgtVisibleZoomControls;
@@ -1478,6 +1481,12 @@ type
       read FToolbarVisible write FToolbarVisible;
     property FullScreenVisible: Boolean
       read FFullScreenVisible write FFullScreenVisible;
+    property LazyLoading: Boolean
+      read FLazyLoading write FLazyLoading;
+    property DisableContextMenu: Boolean
+      read FDisableContextMenu write FDisableContextMenu;
+    property RenderingDpi: Integer
+      read FRenderingDpi write FRenderingDpi;
     property VisibleFileOperationControls: TgtVisibleFileOperationControls
       read GetVisibleFileOperationControls write SetVisibleFileOperationControls;
     property VisibleNavigationControls: TgtVisibleNavigationControls
@@ -3096,7 +3105,7 @@ end;
 
 function TgtImageEnhancementSettings.ToJson: string;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := '"imageEnhancementSettings":{';
   Result := Result + '"enhancementMode":"' +
@@ -3157,7 +3166,7 @@ end;
 
 function TgtConverterDigitizerSettings.ToJson: string;
 var
-  LIndex: integer;
+  LIndex: Integer;
 begin
   Result := '"digitizerSettings":{';
   Result := Result + '"digitizationMode":"' +
@@ -3493,7 +3502,7 @@ var
   LRestRequest: TRestRequest;
   LRestResponse: THttpResponse;
   LJsonResponse: TgtRestAPIResponseCommon;
-  LNumFiles, LIndex: integer;
+  LNumFiles, LIndex: Integer;
 begin
   LJsonResponse := nil;
   LNumFiles := 0;
@@ -4746,6 +4755,9 @@ constructor TgtViewerPreferences.Create;
 begin
   FToolbarVisible := True;
   FFullScreenVisible := False;
+	FLazyLoading := False;
+	FDisableContextMenu := False;
+	FRenderingDpi := 96;
   FVisibleFileOperationControls := TgtVisibleFileOperationControls.Create;
   FVisibleNavigationControls := TgtVisibleNavigationControls.Create;
   FVisibleZoomControls := TgtVisibleZoomControls.Create;
@@ -4871,6 +4883,9 @@ begin
   Result := Result + '"toolbarVisible":' + BooleanToString[ToolbarVisible];
   Result := Result + ',"fullScreenVisible":' + BooleanToString
     [FullScreenVisible];
+  Result := Result + ',"lazyLoading":' + BooleanToString[LazyLoading];
+  Result := Result + ',"disableContextMenu":' + BooleanToString[DisableContextMenu];
+  Result := Result + ',"renderingDpi":' + IntToStr(RenderingDpi);
   Result := Result + ',' + FVisibleFileOperationControls.ToJson();
   Result := Result + ',' + FVisibleNavigationControls.ToJson();
   Result := Result + ',' + FVisibleZoomControls.ToJson();
@@ -4892,6 +4907,9 @@ begin
     LDest := TgtViewerPreferences(Dest);
     LDest.FToolbarVisible := Self.FToolbarVisible;
     LDest.FFullScreenVisible := Self.FFullScreenVisible;
+		LDest.FLazyLoading := Self.FLazyLoading;
+		LDest.FDisableContextMenu := Self.FDisableContextMenu;
+		LDest.FRenderingDpi := Self.FRenderingDpi;
     LDest.FVisibleFileOperationControls.Assign(Self.FVisibleFileOperationControls);
     LDest.FVisibleNavigationControls.Assign(Self.FVisibleNavigationControls);
     LDest.FVisibleZoomControls.Assign(Self.FVisibleZoomControls);
