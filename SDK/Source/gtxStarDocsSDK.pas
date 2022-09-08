@@ -1,6 +1,6 @@
 {
   Gnostice StarDocs v2
-  Copyright Â© Gnostice Information Technologies Private Limited, Bangalore, India
+  Copyright © Gnostice Information Technologies Private Limited, Bangalore, India
   http://www.gnostice.com
 }
 
@@ -4885,7 +4885,7 @@ begin
     [FullScreenVisible];
   Result := Result + ',"lazyLoading":' + BooleanToString[LazyLoading];
   Result := Result + ',"disableContextMenu":' + BooleanToString[DisableContextMenu];
-  Result := Result + ',"renderingDpi":' + IntToStr(RenderingDpi);
+  Result := Result + ',"renderingDpi":' + IntToStr(ToolbarVisible);
   Result := Result + ',' + FVisibleFileOperationControls.ToJson();
   Result := Result + ',' + FVisibleNavigationControls.ToJson();
   Result := Result + ',' + FVisibleZoomControls.ToJson();
